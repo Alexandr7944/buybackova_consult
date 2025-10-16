@@ -2,6 +2,7 @@ import {Controller, Get, Post, UseInterceptors, UploadedFile, Body, HttpExceptio
 import {MaturityLevelService} from './maturity-level.service';
 import {FileInterceptor} from "@nestjs/platform-express";
 import type {Express} from 'express';
+import {Public} from "../auth/SkipAuth";
 
 @Controller('maturity-level')
 export class MaturityLevelController {
@@ -10,11 +11,13 @@ export class MaturityLevelController {
     ) {
     }
 
+    @Public()
     @Get()
     async findAll() {
         return await this.maturityLevelService.findAll();
     }
 
+    @Public()
     @Post('report')
     async getReport(@Body() body: Record<string, Record<string, number>>) {
         const values = Object.values(body);

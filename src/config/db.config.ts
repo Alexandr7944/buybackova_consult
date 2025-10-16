@@ -2,6 +2,7 @@ import env from './env/env';
 import {CxMaturitySections} from "../maturity-level/models/cx_maturity_sections.models";
 import {CxMaturityQuestions} from "../maturity-level/models/cx_maturity_questions.models";
 import {CxMaturityCategories} from "../maturity-level/models/cx_maturity_categories.models";
+import {Users} from "../users/users.model";
 
 const options = {
     host:        env.DB_HOST,
@@ -19,7 +20,7 @@ const config = {
     username: env.DB_USER,
     password: env.DB_PASSWORD,
     ...options,
-    models: [CxMaturityQuestions, CxMaturitySections, CxMaturityCategories],
+    models: [CxMaturityQuestions, CxMaturitySections, CxMaturityCategories, Users],
 };
 
 export default config;
