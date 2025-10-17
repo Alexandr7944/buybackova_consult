@@ -21,9 +21,9 @@ export class UsersRepository {
         return result?.dataValues;
     }
 
-    async update(body: any) {
-        return await this.usersModel.update(body, {
-            where: {id: body.id}
+    async update(id: number, data: Partial<UserAttributes>) {
+        return await this.usersModel.update(data, {
+            where: {id}
         });
     }
 }

@@ -11,13 +11,13 @@ export class MaturityLevelController {
     ) {
     }
 
-    @Public()
+    // @Public()
     @Get()
     async findAll() {
         return await this.maturityLevelService.findAll();
     }
 
-    @Public()
+    // @Public()
     @Post('report')
     async getReport(@Body() body: Record<string, Record<string, number>>) {
         const values = Object.values(body);

@@ -5,6 +5,8 @@ export interface UserAttributes {
     username: string;
     password: string;
     refreshToken: string;
+    updatedAt?: Date;
+    createdAt?: Date;
 }
 
 @Table({
