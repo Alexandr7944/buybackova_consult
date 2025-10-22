@@ -1,16 +1,11 @@
 import {
-    Body,
-    Controller,
-    Get,
-    HttpCode,
-    HttpStatus,
-    Post, Req,
-    Res,
+    Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards,
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
 import {Public} from "./SkipAuth";
 import {LoginDto} from "./dto/login.dto";
 import type {Response, Request} from 'express';
+import {LocalAuthGuard} from "./gards/local-auth.guard";
 
 @Controller('auth')
 export class AuthController {
@@ -33,14 +28,14 @@ export class AuthController {
     }
 
     @Public()
+    @UseGuards(LocalAuthGuard)
     @HttpCode(HttpStatus.OK)
     @Post('login')
     async signIn(
-        @Body() signInDto: LoginDto,
+        @Req() req: Request & { user: any },
         @Res({passthrough: true}) res: Response,
     ) {
-        const {user, tokens} = await this.authService.signIn(signInDto.username, signInDto.password);
-
+        const {user, tokens} = await this.authService.respondWithToken(req.user);
         this.authService.setCookie(res, tokens.refreshToken);
         const userDto = {id: user.id, username: user.username}
         return {user: userDto, token: tokens.accessToken};

@@ -1,6 +1,6 @@
 import {ForbiddenException, Injectable, UnauthorizedException} from '@nestjs/common';
 import {UsersService} from "../users/users.service";
-import {compareSync, hashSync} from "bcrypt-ts";
+import {hashSync} from "bcrypt-ts";
 import {JwtService} from "@nestjs/jwt";
 import {Response} from "express";
 import {jwtConstants} from "./constants";
@@ -30,18 +30,6 @@ export class AuthService {
         } catch (error) {
             throw new UnauthorizedException(error.message);
         }
-    }
-
-    async signIn(
-        username: string,
-        pass: string
-    ): Promise<{ user: { id: number, username: string }, tokens: TokenType }> {
-        const user = await this.usersService.findOne(username);
-        const validPassword: boolean = !!user && compareSync(pass, user.password);
-        if (!validPassword || !user)
-            throw new UnauthorizedException();
-
-        return this.respondWithToken(user);
     }
 
     async refreshToken(refreshToken: string): Promise<{ user: { id: number, username: string }, tokens: TokenType }> {
