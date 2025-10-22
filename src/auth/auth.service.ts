@@ -1,9 +1,11 @@
 import {ForbiddenException, Injectable, UnauthorizedException} from '@nestjs/common';
-import {UsersService} from "../users/users.service";
+import {UsersService} from "../users/domain/users.service";
 import {hashSync} from "bcrypt-ts";
 import {JwtService} from "@nestjs/jwt";
 import {Response} from "express";
 import {jwtConstants} from "./constants";
+import {Role} from "../users/infrastructure/models/roles.model";
+import {AuthProvider, Profile} from "../users/infrastructure/models/profile.model";
 
 type TokenType = {
     accessToken: string,
@@ -81,6 +83,32 @@ export class AuthService {
         });
 
         return {accessToken, refreshToken}
+    }
+
+    async getAuthenticatedUser({userId, username}: { userId: number, username: string }): Promise<{
+        userId: number,
+        username: string,
+        roles: Array<string>,
+        profiles: Array<{
+            provider: AuthProvider,
+            providerUserId: string,
+            displayName: string,
+        }>,
+    }> {
+        const user = await this.usersService.findOne(userId);
+        if (!user || !user.roles || !user.profiles)
+            throw new ForbiddenException('User not found');
+
+        return {
+            userId,
+            username,
+            roles:    user.roles.map((role: Role) => role.slug),
+            profiles: user.profiles.map((profile: Profile) => ({
+                provider:       profile.provider,
+                providerUserId: profile.providerUserId,
+                displayName:    profile.displayName ?? '',
+            })),
+        };
     }
 
 }
