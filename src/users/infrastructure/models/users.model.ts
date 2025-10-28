@@ -1,44 +1,40 @@
 import {
-  AllowNull,
-  AutoIncrement,
-  BelongsToMany,
-  Column,
-  DataType,
-  HasMany,
-  Model,
-  PrimaryKey,
-  Table,
+    AllowNull,
+    AutoIncrement,
+    BelongsToMany,
+    Column,
+    DataType,
+    HasMany,
+    Model,
+    PrimaryKey,
+    Table,
 } from "sequelize-typescript";
-import { Role } from "./roles.model";
-import { UserRole } from "./user-roles.model";
-import { Profile } from "./profile.model";
-
-export interface UserAttributes {
-  id: number;
-  refreshToken?: string | null;
-  updatedAt?: Date;
-  createdAt?: Date;
-}
+import {Role} from "./roles.model";
+import {UserRole} from "./user-roles.model";
+import {Profile} from "./profile.model";
 
 @Table({
-  tableName: "users",
-  timestamps: true,
+    tableName:  "users",
+    timestamps: true,
 })
 export class Users extends Model<Users, {}> {
-  @PrimaryKey
-  @AutoIncrement
-  @Column(DataType.INTEGER)
-  declare id: number;
+    @PrimaryKey
+    @AutoIncrement
+    @Column(DataType.INTEGER)
+    declare id: number;
 
-  // Единый refreshToken для пользователя (nullable для инвалидирования)
-  @AllowNull(true)
-  @Column(DataType.STRING)
-  declare refreshToken: string | null;
+    @AllowNull(false)
+    @Column(DataType.STRING)
+    declare name: string;
 
-  // Associations
-  @BelongsToMany(() => Role, () => UserRole)
-  declare roles?: Array<Role & { UserRole: UserRole }>;
+    @AllowNull(true)
+    @Column(DataType.STRING)
+    declare refreshToken: string | null;
 
-  @HasMany(() => Profile)
-  declare profiles?: Profile[];
+    // Associations
+    @BelongsToMany(() => Role, () => UserRole)
+    declare roles?: Array<Role & { UserRole: UserRole }>;
+
+    @HasMany(() => Profile)
+    declare profiles?: Profile[];
 }

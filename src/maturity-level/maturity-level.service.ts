@@ -3,7 +3,12 @@ import {CreateMaturityCategoryDto, CreateMaturityQuestionDto, CreateMaturitySect
 import {MaturityLevelRepository} from "./maturity-level.repository";
 import {XlsxReader} from "../common/xlsx/xlsx.reader";
 
-type ReportItem = { title: string, totals: number, resultByQuestion: number, result: number };
+export type ReportItem = { title: string, total: number, resultByQuestion: number, result: number };
+export type ReportType = {
+    category: Array<ReportItem>,
+    section: Array<ReportItem>,
+    total: { totalValue: number, description: string }
+}
 
 @Injectable()
 export class MaturityLevelService {
@@ -16,41 +21,41 @@ export class MaturityLevelService {
         return await this.maturityLevelRepository.getTableStructure();
     }
 
-    async getReport(data: Record<string, number>[]) {
+    async getReport(dataIds: Record<string, number>): Promise<ReportType> {
         // {[questionId: number]: resultByQuestion}
-        const dataIds = data.reduce((acc, section) => {
-            return Object.assign(acc, section);
-        }, {});
-
         const reportByCategory = await this.getReportByCategory(dataIds);
         const reportBySection = await this.getReportBySection(dataIds);
-        const total = await this.getTotalReport(reportBySection);
+        const totalReport = await this.getTotalReport(reportBySection);
 
-        return {reportByCategory, reportBySection, total};
+        return {category: reportByCategory, section: reportBySection, total: totalReport};
     }
 
     private async getReportByCategory(dataIds: Record<string, number>) {
-        const result: Array<{ title: string, totals: number, resultByQuestion: number, result: number }> = [];
+        const result: Array<{ title: string, total: number, resultByQuestion: number, result: number }> = [];
         const categories = await this.maturityLevelRepository.getCategories();
+
         categories.forEach((category) => {
             let resultByQuestion = 0;
+
             category.questions?.forEach((question) => {
                 if (dataIds[question])
                     resultByQuestion += dataIds[question];
             })
-            const totals = (category.questions?.length || 0) * 3;
+
+            const total = (category.questions?.length || 0) * 3;
             result.push({
                 title:            category.title,
-                totals,
+                total,
                 resultByQuestion: resultByQuestion,
-                result:           +(resultByQuestion / totals * 100).toFixed(2),
+                result:           +(resultByQuestion / total * 100).toFixed(2),
             })
         })
+
         return result;
     }
 
     private async getReportBySection(dataIds: Record<string, number>) {
-        const result: Array<{ title: string, totals: number, resultByQuestion: number, result: number }> = [];
+        const result: Array<{ title: string, total: number, resultByQuestion: number, result: number }> = [];
         const sections = await this.maturityLevelRepository.getSections();
 
         sections.forEach((section) => {
@@ -59,12 +64,12 @@ export class MaturityLevelService {
                 if (dataIds[row])
                     resultByQuestion += dataIds[row];
             })
-            const totals = (section.rows?.length || 0) * 3;
+            const total = (section.rows?.length || 0) * 3;
             result.push({
                 title:            section.title,
-                totals,
+                total,
                 resultByQuestion: resultByQuestion,
-                result:           +(resultByQuestion / totals * 100).toFixed(2),
+                result:           +(resultByQuestion / total * 100).toFixed(2),
             })
         })
 
@@ -84,7 +89,7 @@ export class MaturityLevelService {
         let totalQuestions: number = 0;
         let totalResultByQuestion: number = 0;
         reportBySection.forEach((section) => {
-            totalQuestions += section.totals;
+            totalQuestions += section.total;
             totalResultByQuestion += section.resultByQuestion;
         });
 

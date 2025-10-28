@@ -4,8 +4,9 @@ import {
 import {AuthService} from './auth.service';
 import {Public} from "./SkipAuth";
 import {LoginDto} from "./dto/login.dto";
-import type {Response, Request} from 'express';
+import type {Response} from 'express';
 import {LocalAuthGuard} from "./gards/local-auth.guard";
+import {UserRequest} from "../users/types";
 
 @Controller('auth')
 export class AuthController {
@@ -21,7 +22,7 @@ export class AuthController {
         @Body() signInDto: LoginDto,
         @Res({passthrough: true}) res: Response,
     ) {
-        const {user, tokens} = await this.authService.registration(signInDto.username, signInDto.password);
+        const {user, tokens} = await this.authService.registration(signInDto);
         this.authService.setCookie(res, tokens.refreshToken);
         const userDto = {id: user.id, username: user.username}
         return {user: userDto, token: tokens.accessToken};
@@ -32,19 +33,18 @@ export class AuthController {
     @HttpCode(HttpStatus.OK)
     @Post('login')
     async signIn(
-        @Req() req: Request & { user: any },
+        @Req() req: UserRequest,
         @Res({passthrough: true}) res: Response,
     ) {
-        const {user, tokens} = await this.authService.respondWithToken(req.user);
+        const {tokens} = await this.authService.respondWithToken(req.user);
         this.authService.setCookie(res, tokens.refreshToken);
-        const userDto = {id: user.id, username: user.username}
-        return {user: userDto, token: tokens.accessToken};
+        return {user: req.user, token: tokens.accessToken};
     }
 
     @Public()
     @Get('refresh')
     async refreshToken(
-        @Req() req: Request & { user: any },
+        @Req() req: UserRequest,
         @Res({passthrough: true}) res: Response
     ) {
         const {refreshToken} = req.cookies;
@@ -56,7 +56,13 @@ export class AuthController {
     }
 
     @Get('profile')
-    async getProfile(@Req() req: Request & { user: any }) {
+    async getProfile(@Req() req: UserRequest) {
         return this.authService.getAuthenticatedUser(req.user)
+    }
+
+    @Get ('logout')
+    async logout(@Res({passthrough: true}) res: Response) {
+        res.clearCookie('refreshToken');
+        return {message: 'Logged out successfully'};
     }
 }

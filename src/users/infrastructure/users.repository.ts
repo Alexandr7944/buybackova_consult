@@ -1,12 +1,13 @@
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/sequelize";
-import {UserAttributes, Users} from "./models/users.model";
+import {Users} from "./models/users.model";
 import {Transaction} from "sequelize";
 import {Profile} from "./models/profile.model";
 import {LoginDto} from "../../auth/dto/login.dto";
 import {Role} from "./models/roles.model";
 import {UserRole} from "./models/user-roles.model";
 import assert from "node:assert";
+import {UserAttributes} from "../types";
 
 @Injectable()
 export class UsersRepository {
@@ -18,8 +19,8 @@ export class UsersRepository {
     ) {
     }
 
-    async create(transaction: Transaction) {
-        return await this.usersModel.create({}, {transaction});
+    async create(name: string, transaction: Transaction) {
+        return await this.usersModel.create({name}, {transaction});
     }
 
     async createLocalProfile(userId: number, profile: LoginDto, transaction: Transaction) {

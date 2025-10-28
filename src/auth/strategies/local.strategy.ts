@@ -3,15 +3,17 @@ import {PassportStrategy} from '@nestjs/passport';
 import {HttpException, Injectable, UnauthorizedException} from '@nestjs/common';
 import {compareSync} from "bcrypt-ts";
 import {UsersService} from "../../users/domain/users.service";
-import {UserAttributes} from "../../users/infrastructure/models/users.model";
+import {UserRequestAttributes} from "../../users/types";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {
-    constructor(private usersService: UsersService) {
+    constructor(
+        private usersService: UsersService
+    ) {
         super();
     }
 
-    async validate(username: string, pass: string): Promise<UserAttributes> {
+    async validate(username: string, pass: string): Promise<UserRequestAttributes> {
         const profile = await this.usersService.findLocalProfile(username);
         if (!profile?.passwordHash || !compareSync(pass, profile?.passwordHash))
             throw new UnauthorizedException();
@@ -20,6 +22,10 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         if (!user)
             throw new HttpException('User not found', 404);
 
-        return user;
+        return {
+            id:       user.id,
+            username: profile.username as string,
+            roles:    (user?.roles ?? []).map(role => role.slug),
+        }
     }
 }

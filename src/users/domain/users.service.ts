@@ -1,10 +1,11 @@
 import {Inject, Injectable} from '@nestjs/common';
 import {UsersRepository} from "../infrastructure/users.repository";
 import {LoginDto} from "../../auth/dto/login.dto";
-import {UserAttributes, Users} from "../infrastructure/models/users.model";
+import {Users} from "../infrastructure/models/users.model";
 import sequelize from "sequelize";
 import {Sequelize} from "sequelize-typescript";
 import {Profile} from "../infrastructure/models/profile.model";
+import {UserAttributes} from "../types";
 
 @Injectable()
 export class UsersService {
@@ -19,9 +20,9 @@ export class UsersService {
 
         try {
             transaction = await this.sequelize.transaction();
-            const user = await this.usersRepository.create(transaction);
+            const user = await this.usersRepository.create(body.name, transaction);
             const localProfile = await this.usersRepository.createLocalProfile(user.id, body, transaction);
-            const role = await this.usersRepository.setUserRole(user.id, 'guest', transaction);
+            await this.usersRepository.setUserRole(user.id, 'guest', transaction);
 
             await transaction.commit();
             return {id: user.id, username: localProfile.providerUserId};

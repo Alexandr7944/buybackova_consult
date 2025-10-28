@@ -6,6 +6,8 @@ import {Response} from "express";
 import {jwtConstants} from "./constants";
 import {Role} from "../users/infrastructure/models/roles.model";
 import {AuthProvider, Profile} from "../users/infrastructure/models/profile.model";
+import {LoginDto} from "./dto/login.dto";
+import {UserRequestAttributes} from "../users/types";
 
 type TokenType = {
     accessToken: string,
@@ -21,13 +23,15 @@ export class AuthService {
     }
 
     async registration(
-        username: string,
-        pass: string
-    ): Promise<{ user: { id: number, username: string }, tokens: TokenType }> {
+        {name, username, password: pass}: LoginDto
+    ): Promise<{
+        user: { id: number, username: string },
+        tokens: TokenType
+    }> {
         const password = hashSync(pass, 4);
 
         try {
-            const candidate = await this.usersService.create({username, password});
+            const candidate = await this.usersService.create({name, username, password});
             return await this.respondWithToken(candidate);
         } catch (error) {
             throw new UnauthorizedException(error.message);
@@ -47,7 +51,7 @@ export class AuthService {
         return await this.respondWithToken({id: payload.sub, username: payload.username});
     }
 
-    async respondWithToken(user: { id: number, username: string, updatedAt?: Date, refreshToken?: string }) {
+    async respondWithToken(user: { id: number, username: string }) {
         const payload = {sub: user.id, username: user.username};
         const tokens = await this.generateToken(payload);
 
@@ -85,8 +89,8 @@ export class AuthService {
         return {accessToken, refreshToken}
     }
 
-    async getAuthenticatedUser({userId, username}: { userId: number, username: string }): Promise<{
-        userId: number,
+    async getAuthenticatedUser({id, username}: UserRequestAttributes): Promise<{
+        name: string,
         username: string,
         roles: Array<string>,
         profiles: Array<{
@@ -95,12 +99,12 @@ export class AuthService {
             displayName: string,
         }>,
     }> {
-        const user = await this.usersService.findOne(userId);
+        const user = await this.usersService.findOne(id);
         if (!user || !user.roles || !user.profiles)
             throw new ForbiddenException('User not found');
 
         return {
-            userId,
+            name:     user.name,
             username,
             roles:    user.roles.map((role: Role) => role.slug),
             profiles: user.profiles.map((profile: Profile) => ({

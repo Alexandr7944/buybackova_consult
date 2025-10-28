@@ -6,6 +6,9 @@ import {Users} from "../users/infrastructure/models/users.model";
 import {Role} from "../users/infrastructure/models/roles.model";
 import {UserRole} from "../users/infrastructure/models/user-roles.model";
 import {Profile} from "../users/infrastructure/models/profile.model";
+import {AuditableObject} from "../auditable-object/infrastructure/auditable-object.model";
+import {Audit} from "../audits/infrastructure/models/audit.model";
+import {AuditResults} from "../audits/infrastructure/models/audit-results.model";
 
 const options = {
     host:        env.DB_HOST,
@@ -25,7 +28,8 @@ const config = {
     ...options,
     models: [
         CxMaturityQuestions, CxMaturitySections, CxMaturityCategories,
-        Users, Role, UserRole, Profile
+        Users, Role, UserRole, Profile,
+        AuditableObject, Audit, AuditResults
     ],
 };
 

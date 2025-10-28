@@ -13,6 +13,7 @@ import {CxMaturityCategories} from "./models/cx_maturity_categories.models";
     ],
     controllers: [MaturityLevelController],
     providers:   [MaturityLevelService, MaturityLevelRepository],
+    exports:     [MaturityLevelService]
 })
 export class MaturityLevelModule {
 }
