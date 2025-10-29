@@ -34,7 +34,7 @@ export class AuditableObjectRepository {
                 {
                     model:      this.auditModel,
                     as:         'audits',
-                    attributes: ['id', 'resultValue', 'resultDescription', 'createdAt'],
+                    attributes: ['id', 'resultValue', 'resultDescription', 'createdAt', 'date'],
                     order:      [['createdAt', 'DESC']],
                 }
             ]
