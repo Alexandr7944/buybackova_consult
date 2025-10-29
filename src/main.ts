@@ -31,6 +31,9 @@ async function bootstrap() {
 
     const app = await NestFactory.create(AppModule, {abortOnError: false});
 
+    const instance = app.getHttpAdapter().getInstance();
+    instance.set('trust proxy', true);
+
     app.use(morgan(isDevMode ? 'dev' : 'combined'));
     app.use(cookieParser());
     app.use(helmet(helmetOptions));
