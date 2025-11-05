@@ -80,7 +80,7 @@ export class AuthService {
     private async generateToken(payload: { sub: number, username: string }) {
         const accessToken = await this.jwtService.signAsync(payload, {
             secret:    jwtConstants.JWT_ACCESS_SECRET,
-            expiresIn: '1h'
+            expiresIn: '15m'
         });
         const refreshToken = await this.jwtService.signAsync(payload, {
             secret:    jwtConstants.JWT_REFRESH_SECRET,

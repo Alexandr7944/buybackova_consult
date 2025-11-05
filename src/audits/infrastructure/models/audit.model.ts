@@ -18,6 +18,7 @@ import {CreateAuditDto} from "../../dto/create-audit.dto";
 @Table({
     tableName:  'audits',
     timestamps: true,
+    paranoid:   true,
 })
 
 export class Audit extends Model<Audit, CreateAuditDto> {
@@ -48,6 +49,13 @@ export class Audit extends Model<Audit, CreateAuditDto> {
 
     @Column(DataType.FLOAT)
     declare resultValue: number;
+
+    @AllowNull(false)
+    @Column({
+        type: DataType.STRING,
+        defaultValue: 'auditor'
+    })
+    declare author: string;     // auditor | user
 
     @Column(DataType.STRING)
     declare resultDescription: string;

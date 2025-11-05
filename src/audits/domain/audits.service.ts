@@ -1,4 +1,4 @@
-import {Inject, Injectable} from '@nestjs/common';
+import {HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {CreateAuditDto} from '../dto/create-audit.dto';
 import {UpdateAuditDto} from '../dto/update-audit.dto';
 import {AuditsRepository} from "../infrastructure/audits.repository";
@@ -106,11 +106,33 @@ export class AuditsService {
         return total;
     }
 
-    async remove(user: UserRequestAttributes, id: number) {
-        return `This action removes a #${id} audit`;
-        // if (req.user.roles.some(item => ['admin', 'auditor'].includes(item))) {
-        // } else {
-        //     throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-        // }
+    async remove(user: UserRequestAttributes, auditId: number) {
+        const isAdmin = user.roles.some(item => ['admin'].includes(item));
+        let transaction = await this.sequelize.transaction();
+
+        try {
+            if (isAdmin) {
+                const deleted = await this.auditsRepository.remove(auditId, transaction);
+                if (!deleted)
+                    throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+
+                await transaction.commit();
+                return {success: true};
+            }
+
+            // const audit = await this.auditsRepository.findOne(auditId);
+            // const isOwner = user.id === audit?.object?.ownerId;
+            //
+            // if (isOwner) {
+            //     const deleted = await this.auditsRepository.remove(auditId, transaction);
+            //     await transaction.commit();
+            //     return {success: true};
+            // }
+
+            throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+        } catch (error) {
+            await transaction.rollback();
+            throw error;
+        }
     }
 }

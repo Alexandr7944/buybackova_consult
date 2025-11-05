@@ -2,7 +2,6 @@ import {InjectModel} from "@nestjs/sequelize";
 import {Audit} from "./models/audit.model";
 import {AuditResults} from "./models/audit-results.model";
 import {CreateAuditDto} from "../dto/create-audit.dto";
-import {UserRequestAttributes} from "../../users/types";
 import {Transaction} from "sequelize";
 import {CreateAuditResultsDto} from "../dto/create-audit-results.dto";
 import {AuditableObject} from "../../auditable-object/infrastructure/auditable-object.model";
@@ -55,11 +54,13 @@ export class AuditsRepository {
         })
     }
 
-    async remove(user: UserRequestAttributes, id: number) {
-        return `This action removes a #${id} audit`;
-        // if (req.user.roles.some(item => ['admin', 'auditor'].includes(item))) {
-        // } else {
-        //     throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
-        // }
+    async remove(auditId: number, transaction: Transaction) {
+        await this.deleteReportByAuditId(auditId, transaction);
+        return await this.auditModel.destroy({
+            where: {
+                id: auditId,
+            },
+            transaction
+        });
     }
 }

@@ -65,6 +65,24 @@ export class UsersRepository {
         });
     }
 
+    async findUsers(params?: { role?: string }) {
+        const users = await this.usersModel.findAll({
+            attributes: ['id', 'name'],
+            order:      [['name', 'ASC']],
+            ...(params?.role ? {
+                include: [
+                    {
+                        model:      this.roleModel,
+                        as:         'roles',
+                        where:      {slug: params.role},
+                        attributes: [],
+                    }
+                ]
+            } : {})
+        })
+        return users.map(user => user.dataValues)
+    }
+
     async findLocalProfile(username: string): Promise<Profile | undefined> {
         const profile = await this.profileModel.findOne({
             where: {

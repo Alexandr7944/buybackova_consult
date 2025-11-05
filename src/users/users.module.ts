@@ -6,6 +6,7 @@ import {UsersRepository} from "./infrastructure/users.repository";
 import {Role} from "./infrastructure/models/roles.model";
 import {UserRole} from "./infrastructure/models/user-roles.model";
 import {Profile} from "./infrastructure/models/profile.model";
+import { UsersController } from './users.controller';
 
 @Module({
     imports:   [
@@ -13,6 +14,7 @@ import {Profile} from "./infrastructure/models/profile.model";
     ],
     providers: [UsersService, UsersRepository],
     exports:   [UsersService, UsersRepository],
+    controllers: [UsersController],
 })
 export class UsersModule {
 }

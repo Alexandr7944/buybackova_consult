@@ -18,7 +18,9 @@ export class AuditableObjectRepository {
     }
 
     async findAll() {
-        return await this.auditableObjectModel.findAll();
+        return await this.auditableObjectModel.findAll({
+            order: [['createdAt', 'DESC']],
+        });
     }
 
     async findAllByUser(id: number) {
@@ -42,8 +44,7 @@ export class AuditableObjectRepository {
     }
 
     async update(id: number, updateAuditableObjectDto: UpdateAuditableObjectDto) {
-        const {name, address} = updateAuditableObjectDto;
-        return await this.auditableObjectModel.update({name, address}, {
+        return await this.auditableObjectModel.update(updateAuditableObjectDto, {
             where: {id},
         });
     }

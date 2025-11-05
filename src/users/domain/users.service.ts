@@ -36,6 +36,10 @@ export class UsersService {
         return await this.usersRepository.findOne(id);
     }
 
+    async findUsers() {
+        return await this.usersRepository.findUsers({role: 'user'});
+    }
+
     async findLocalProfile(username: string): Promise<Profile | undefined> {
         return await this.usersRepository.findLocalProfile(username);
     }

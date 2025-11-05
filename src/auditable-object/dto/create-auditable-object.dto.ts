@@ -1,5 +1,5 @@
 export class CreateAuditableObjectDto {
     name: string;
     address: string;
-    ownerId: number;
+    ownerId?: number;
 }
