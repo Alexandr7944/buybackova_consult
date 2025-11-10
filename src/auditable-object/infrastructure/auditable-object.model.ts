@@ -1,7 +1,6 @@
 import {
     AllowNull,
     AutoIncrement,
-    BelongsTo,
     Column,
     DataType,
     ForeignKey,
@@ -11,8 +10,8 @@ import {
     Table
 } from "sequelize-typescript";
 import {CreateAuditableObjectDto} from "../dto/create-auditable-object.dto";
-import {Users} from "../../users/infrastructure/models/users.model";
 import {Audit} from "../../audits/infrastructure/models/audit.model";
+import {Company} from "../../companies/infrastructure/models/company.model";
 
 @Table({
     tableName:  'auditable_objects',
@@ -34,15 +33,12 @@ export class AuditableObject extends Model<AuditableObject, CreateAuditableObjec
     @Column(DataType.STRING)
     declare address: string;
 
-    @ForeignKey(() => Users)
-    @AllowNull(true)
-    @Column(DataType.INTEGER)
-    declare ownerId: number;
-
     @HasMany(() => Audit)
     declare audits: Audit[];
 
-    @BelongsTo(() => Users)
-    declare owner: Users;
+    @ForeignKey(() => Company)
+    @AllowNull(true)
+    @Column(DataType.INTEGER)
+    declare companyId: number;
 }
 

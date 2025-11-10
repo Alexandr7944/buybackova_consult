@@ -22,10 +22,14 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
         if (!user)
             throw new HttpException('User not found', 404);
 
+        const roles = (user?.roles ?? []).map(role => role.slug);
+
         return {
-            id:       user.id,
-            username: profile.username as string,
-            roles:    (user?.roles ?? []).map(role => role.slug),
+            id:        user.id,
+            username:  profile.username as string,
+            roles:     roles,
+            isAdmin:   roles.includes('admin'),
+            companyId: user.companyId,
         }
     }
 }

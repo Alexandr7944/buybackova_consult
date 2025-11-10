@@ -1,9 +1,9 @@
 import {
     AllowNull,
-    AutoIncrement,
+    AutoIncrement, BelongsTo,
     BelongsToMany,
     Column,
-    DataType,
+    DataType, ForeignKey,
     HasMany,
     Model,
     PrimaryKey,
@@ -12,6 +12,7 @@ import {
 import {Role} from "./roles.model";
 import {UserRole} from "./user-roles.model";
 import {Profile} from "./profile.model";
+import {Company} from "../../../companies/infrastructure/models/company.model";
 
 @Table({
     tableName:  "users",
@@ -31,10 +32,18 @@ export class Users extends Model<Users, {}> {
     @Column(DataType.STRING)
     declare refreshToken: string | null;
 
+    @ForeignKey(() => Company)
+    @AllowNull(true)
+    @Column(DataType.INTEGER)
+    declare companyId: number;
+
     // Associations
     @BelongsToMany(() => Role, () => UserRole)
     declare roles?: Array<Role & { UserRole: UserRole }>;
 
     @HasMany(() => Profile)
     declare profiles?: Profile[];
+
+    @BelongsTo(() => Company)
+    declare company?: Company;
 }

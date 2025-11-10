@@ -16,15 +16,18 @@ export class AuditableObjectService {
     }
 
     async findAll(user: UserRequestAttributes) {
-        if (user.roles.includes('admin'))
+        if (user.isAdmin)
             return await this.auditableObjectRepository.findAll();
-        else
-            return await this.auditableObjectRepository.findAllByUser(user.id);
+
+        if (user.companyId)
+            return await this.auditableObjectRepository.findAllByCompanyId(user.companyId);
+
+        return [];
     }
 
     async findOne(user: UserRequestAttributes, id: number) {
         const result = await this.auditableObjectRepository.findOne(id);
-        if (user.roles.includes('admin') || result?.ownerId === user.id)
+        if (user.roles.includes('admin') || result?.companyId === user.companyId)
             return result;
 
         throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);

@@ -17,15 +17,19 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         });
     }
 
-    async validate(payload: {sub: number, username: string}): Promise<UserRequestAttributes> {
+    async validate(payload: { sub: number, username: string }): Promise<UserRequestAttributes> {
         const user = await this.usersService.findOne(payload.sub);
         if (!user)
             throw new HttpException('User not found', 404);
 
+        const roles = (user?.roles ?? []).map(role => role.slug);
+
         return {
-            id:       payload.sub,
+            id:       user.id,
             username: payload.username,
-            roles:    (user?.roles ?? []).map(role => role.slug),
+            roles:    roles,
+            isAdmin:  roles.includes('admin'),
+            companyId: user.companyId,
         }
     }
 }

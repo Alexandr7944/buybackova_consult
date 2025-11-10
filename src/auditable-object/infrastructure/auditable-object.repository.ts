@@ -23,23 +23,22 @@ export class AuditableObjectRepository {
         });
     }
 
-    async findAllByUser(id: number) {
+    async findAllByCompanyId(companyId: number) {
         return await this.auditableObjectModel.findAll({
-            where: {ownerId: id},
+            where: {companyId},
         });
     }
 
     async findOne(id: number) {
         return await this.auditableObjectModel.findByPk(id, {
-            attributes: ['id', 'name', 'address', 'ownerId'],
+            attributes: ['id', 'name', 'address', 'companyId'],
             include:    [
                 {
                     model:      this.auditModel,
                     as:         'audits',
                     attributes: ['id', 'resultValue', 'resultDescription', 'createdAt', 'date'],
-                    order:      [['createdAt', 'DESC']],
                 }
-            ]
+            ],
         });
     }
 

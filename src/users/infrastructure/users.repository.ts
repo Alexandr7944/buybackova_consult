@@ -1,13 +1,14 @@
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/sequelize";
 import {Users} from "./models/users.model";
-import {Transaction} from "sequelize";
+import {Op, Transaction} from "sequelize";
 import {Profile} from "./models/profile.model";
 import {LoginDto} from "../../auth/dto/login.dto";
 import {Role} from "./models/roles.model";
 import {UserRole} from "./models/user-roles.model";
 import assert from "node:assert";
 import {UserAttributes} from "../types";
+import {Company} from "../../companies/infrastructure/models/company.model";
 
 @Injectable()
 export class UsersRepository {
@@ -16,6 +17,7 @@ export class UsersRepository {
         @InjectModel(Profile) private readonly profileModel: typeof Profile,
         @InjectModel(Role) private readonly roleModel: typeof Role,
         @InjectModel(UserRole) private readonly userRoleModel: typeof UserRole,
+        @InjectModel(Company) private readonly componyModel: typeof Company,
     ) {
     }
 
@@ -34,16 +36,17 @@ export class UsersRepository {
     }
 
     async setUserRole(userId: number, slug: string, transaction: Transaction) {
-        const role = await this.findRoleIdBySlug(slug);
-        assert.ok(role?.id, 'Role not found')
-        await this.userRoleModel.create({userId, roleId: role.id,}, {transaction});
+        const roleId = await this.findRoleIdBySlug(slug);
+        await this.userRoleModel.create({userId, roleId,}, {transaction});
     }
 
-    async findRoleIdBySlug(slug: string) {
-        return await this.roleModel.findOne({
+    private async findRoleIdBySlug(slug: string) {
+        const role = await this.roleModel.findOne({
             where:      {slug},
             attributes: ['id']
         });
+        assert.ok(role?.id, 'Role not found')
+        return role.id;
     }
 
     async findOne(id: number) {
@@ -60,12 +63,17 @@ export class UsersRepository {
                     as:         'roles',
                     attributes: ['slug'],
                     through:    {attributes: []},
+                },
+                {
+                    model:      this.componyModel,
+                    as:         'company',
+                    attributes: ['id', 'name']
                 }
             ]
         });
     }
 
-    async findUsers(params?: { role?: string }) {
+    async findUsers(params?: { role?: string[] }) {
         const users = await this.usersModel.findAll({
             attributes: ['id', 'name'],
             order:      [['name', 'ASC']],
@@ -74,7 +82,7 @@ export class UsersRepository {
                     {
                         model:      this.roleModel,
                         as:         'roles',
-                        where:      {slug: params.role},
+                        where:      {slug: {[Op.in]: params.role}},
                         attributes: [],
                     }
                 ]
@@ -94,9 +102,27 @@ export class UsersRepository {
     }
 
 
-    async update(id: number, data: Partial<UserAttributes>) {
+    async update(id: number, data: Partial<UserAttributes>, transaction?: Transaction) {
         return await this.usersModel.update(data, {
-            where: {id}
+            where: {id},
+            ...(transaction ? {transaction} : {})
         });
+    }
+
+    async updateCompanyId(ids: number[], companyId: number, transaction?: Transaction) {
+        return await this.usersModel.update({companyId}, {
+            where: {
+                id: {[Op.in]: ids}
+            },
+            ...(transaction ? {transaction} : {})
+        });
+    }
+
+    async updateRole(ids: number[], transaction?: Transaction) {
+        const roleId = await this.findRoleIdBySlug('user');
+        return this.userRoleModel.update({roleId}, {
+            where: {userId: {[Op.in]: ids}},
+            ...(transaction ? {transaction} : {})
+        })
     }
 }

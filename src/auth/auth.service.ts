@@ -93,6 +93,7 @@ export class AuthService {
     async getAuthenticatedUser({id, username}: UserRequestAttributes): Promise<{
         name: string,
         username: string,
+        company: { id: number, name: string } | undefined,
         roles: Array<string>,
         profiles: Array<{
             provider: AuthProvider,
@@ -107,6 +108,7 @@ export class AuthService {
         return {
             name:     user.name,
             username,
+            company:  user.company,
             roles:    user.roles.map((role: Role) => role.slug),
             profiles: user.profiles.map((profile: Profile) => ({
                 provider:       profile.provider,

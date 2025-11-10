@@ -15,9 +15,9 @@ export class AuditableObjectController {
         @Body() createAuditableObjectDto: CreateAuditableObjectDto
     ) {
         return await this.auditableObjectService.create({
-            ownerId: req.user.id,
-            name:    createAuditableObjectDto.name,
-            address: createAuditableObjectDto.address
+            companyId: createAuditableObjectDto.companyId || req.user.companyId,
+            name:      createAuditableObjectDto.name,
+            address:   createAuditableObjectDto.address
         });
     }
 
