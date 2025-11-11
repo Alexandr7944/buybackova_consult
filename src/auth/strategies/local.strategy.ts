@@ -16,7 +16,7 @@ export class LocalStrategy extends PassportStrategy(Strategy) {
     async validate(username: string, pass: string): Promise<UserRequestAttributes> {
         const profile = await this.usersService.findLocalProfile(username);
         if (!profile?.passwordHash || !compareSync(pass, profile?.passwordHash))
-            throw new UnauthorizedException();
+            throw new UnauthorizedException('Неверный логин или пароль');
 
         const user = await this.usersService.findOne(profile.userId)
         if (!user)

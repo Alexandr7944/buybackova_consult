@@ -1,9 +1,6 @@
-import * as fs from "node:fs";
-import path from "node:path";
-
-const credentials = JSON.parse(fs.readFileSync(path.join(__dirname, 'credentials.json'), 'utf8'));
+import env from "../config/env/env";
 
 export const jwtConstants = {
-    JWT_ACCESS_SECRET: credentials.JWT_ACCESS_SECRET,
-    JWT_REFRESH_SECRET: credentials.JWT_REFRESH_SECRET,
+    JWT_ACCESS_SECRET: env.JWT_ACCESS_SECRET,
+    JWT_REFRESH_SECRET: env.JWT_REFRESH_SECRET,
 };
