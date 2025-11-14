@@ -1,14 +1,14 @@
 import {Injectable} from "@nestjs/common";
 import {InjectModel} from "@nestjs/sequelize";
 import {Users} from "./models/users.model";
-import {Op, Transaction} from "sequelize";
+import {Op, Transaction, WhereOptions} from "sequelize";
 import {Profile} from "./models/profile.model";
-import {LoginDto} from "../../auth/dto/login.dto";
+import {LoginDto} from "@/auth/dto/login.dto";
 import {Role} from "./models/roles.model";
 import {UserRole} from "./models/user-roles.model";
 import assert from "node:assert";
 import {UserAttributes} from "../types";
-import {Company} from "../../companies/infrastructure/models/company.model";
+import {Company} from "@/companies/infrastructure/models/company.model";
 
 @Injectable()
 export class UsersRepository {
@@ -35,7 +35,7 @@ export class UsersRepository {
         }, {transaction});
     }
 
-    async setUserRole(userId: number, slug: string, transaction: Transaction) {
+    async createUserRole(userId: number, slug: string, transaction: Transaction) {
         const roleId = await this.findRoleIdBySlug(slug);
         await this.userRoleModel.create({userId, roleId,}, {transaction});
     }
@@ -73,10 +73,11 @@ export class UsersRepository {
         });
     }
 
-    async findUsers(params?: { role?: string[] }) {
-        const users = await this.usersModel.findAll({
-            attributes: ['id', 'name'],
+    async findUsers(params?: { role?: string[], where?: WhereOptions<Users> }) {
+        return await this.usersModel.findAll({
+            attributes: ['id', 'name', 'companyId'],
             order:      [['name', 'ASC']],
+            where:      params?.where || {},
             ...(params?.role ? {
                 include: [
                     {
@@ -88,7 +89,6 @@ export class UsersRepository {
                 ]
             } : {})
         })
-        return users.map(user => user.dataValues)
     }
 
     async findLocalProfile(username: string): Promise<Profile | undefined> {
@@ -109,17 +109,17 @@ export class UsersRepository {
         });
     }
 
-    async updateCompanyId(ids: number[], companyId: number, transaction?: Transaction) {
+    async updateCompanyId(ids: number[], companyId: number | undefined, transaction?: Transaction) {
         return await this.usersModel.update({companyId}, {
-            where: {
-                id: {[Op.in]: ids}
-            },
+            where: {id: {[Op.in]: ids}},
             ...(transaction ? {transaction} : {})
         });
     }
 
-    async updateRole(ids: number[], transaction?: Transaction) {
-        const roleId = await this.findRoleIdBySlug('user');
+    async updateRole(ids: number[], role: string, transaction?: Transaction) {
+        const roleId = await this.findRoleIdBySlug(role);
+        assert.ok(roleId, `Role ${role} not found`)
+
         return this.userRoleModel.update({roleId}, {
             where: {userId: {[Op.in]: ids}},
             ...(transaction ? {transaction} : {})

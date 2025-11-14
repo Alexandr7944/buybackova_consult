@@ -2,7 +2,7 @@ import {HttpException, HttpStatus, Injectable} from '@nestjs/common';
 import {CreateAuditableObjectDto} from '../dto/create-auditable-object.dto';
 import {UpdateAuditableObjectDto} from '../dto/update-auditable-object.dto';
 import {AuditableObjectRepository} from "../infrastructure/auditable-object.repository";
-import {UserRequestAttributes} from "../../users/types";
+import {UserRequestAttributes} from "@/users/types";
 
 @Injectable()
 export class AuditableObjectService {

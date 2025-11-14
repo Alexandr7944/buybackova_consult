@@ -12,7 +12,7 @@ import {APP_GUARD} from "@nestjs/core";
 
 @Module({
     imports:   [
-        ThrottlerModule.forRoot({throttlers: [{ttl: 60000, limit: 10}]}),
+        ThrottlerModule.forRoot({throttlers: [{ttl: 60000, limit: 100}]}),
         SequelizeModule.forRoot(config),
         MaturityLevelModule,
         AuthModule,

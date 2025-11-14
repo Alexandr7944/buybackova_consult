@@ -1,5 +1,5 @@
 import {Controller, Get, Post, UseInterceptors, UploadedFile} from '@nestjs/common';
-import {MaturityLevelService} from './maturity-level.service';
+import {MaturityLevelService} from './domain/maturity-level.service';
 import {FileInterceptor} from "@nestjs/platform-express";
 import type {Express} from 'express';
 

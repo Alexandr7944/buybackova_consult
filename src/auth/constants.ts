@@ -1,4 +1,4 @@
-import env from "../config/env/env";
+import env from "@/config/env/env";
 
 export const jwtConstants = {
     JWT_ACCESS_SECRET: env.JWT_ACCESS_SECRET,

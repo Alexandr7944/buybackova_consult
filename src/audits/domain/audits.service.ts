@@ -2,10 +2,10 @@ import {HttpException, HttpStatus, Inject, Injectable} from '@nestjs/common';
 import {CreateAuditDto} from '../dto/create-audit.dto';
 import {UpdateAuditDto} from '../dto/update-audit.dto';
 import {AuditsRepository} from "../infrastructure/audits.repository";
-import {UserRequestAttributes} from "../../users/types";
+import {UserRequestAttributes} from "@/users/types";
 import {Transaction} from "sequelize";
 import {Sequelize} from "sequelize-typescript";
-import {MaturityLevelService, ReportItem} from "../../maturity-level/maturity-level.service";
+import {MaturityLevelService, ReportItem} from "@/maturity-level/domain/maturity-level.service";
 import {Audit} from "../infrastructure/models/audit.model";
 
 type ReportItemsType = {

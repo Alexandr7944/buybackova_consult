@@ -12,7 +12,7 @@ import {
 } from "sequelize-typescript";
 import {JSONB} from "sequelize";
 import {AuditResults} from "./audit-results.model";
-import {AuditableObject} from "../../../auditable-object/infrastructure/auditable-object.model";
+import {AuditableObject} from "@/auditable-object/infrastructure/auditable-object.model";
 import {CreateAuditDto} from "../../dto/create-audit.dto";
 
 @Table({

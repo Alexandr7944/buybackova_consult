@@ -1,11 +1,11 @@
 import {Module} from '@nestjs/common';
-import {MaturityLevelService} from './maturity-level.service';
+import {MaturityLevelService} from './domain/maturity-level.service';
 import {MaturityLevelController} from './maturity-level.controller';
 import {SequelizeModule} from "@nestjs/sequelize";
-import {CxMaturityQuestions} from "./models/cx_maturity_questions.models";
-import {CxMaturitySections} from "./models/cx_maturity_sections.models";
-import {MaturityLevelRepository} from "./maturity-level.repository";
-import {CxMaturityCategories} from "./models/cx_maturity_categories.models";
+import {CxMaturityQuestions} from "./infrastructure/models/cx_maturity_questions.models";
+import {CxMaturitySections} from "./infrastructure/models/cx_maturity_sections.models";
+import {MaturityLevelRepository} from "./infrastructure/maturity-level.repository";
+import {CxMaturityCategories} from "./infrastructure/models/cx_maturity_categories.models";
 
 @Module({
     imports:     [

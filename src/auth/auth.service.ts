@@ -1,13 +1,13 @@
 import {ForbiddenException, Injectable, UnauthorizedException} from '@nestjs/common';
-import {UsersService} from "../users/domain/users.service";
+import {UsersService} from "@/users/domain/users.service";
 import {hashSync} from "bcrypt-ts";
 import {JwtService} from "@nestjs/jwt";
 import {Response} from "express";
 import {jwtConstants} from "./constants";
-import {Role} from "../users/infrastructure/models/roles.model";
-import {AuthProvider, Profile} from "../users/infrastructure/models/profile.model";
+import {Role} from "@/users/infrastructure/models/roles.model";
+import {AuthProvider, Profile} from "@/users/infrastructure/models/profile.model";
 import {LoginDto} from "./dto/login.dto";
-import {UserRequestAttributes} from "../users/types";
+import {UserRequestAttributes} from "@/users/types";
 
 type TokenType = {
     accessToken: string,

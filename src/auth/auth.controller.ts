@@ -2,11 +2,11 @@ import {
     Body, Controller, Get, HttpCode, HttpStatus, Post, Req, Res, UseGuards,
 } from '@nestjs/common';
 import {AuthService} from './auth.service';
-import {Public} from "./SkipAuth";
+import {Public} from "./decorators/skip-auth.decorator";
 import {LoginDto} from "./dto/login.dto";
 import type {Response} from 'express';
 import {LocalAuthGuard} from "./gards/local-auth.guard";
-import {UserRequest} from "../users/types";
+import {UserRequest} from "@/users/types";
 
 @Controller('auth')
 export class AuthController {

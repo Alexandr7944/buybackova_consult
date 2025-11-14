@@ -13,7 +13,7 @@ export interface UserRequestAttributes {
     username: string;
     roles: string[];
     isAdmin: boolean;
-    companyId?: number,
+    companyId?: number | null,
 }
 
 export interface UserRequest extends Request {

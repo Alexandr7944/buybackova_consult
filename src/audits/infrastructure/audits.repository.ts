@@ -4,7 +4,7 @@ import {AuditResults} from "./models/audit-results.model";
 import {CreateAuditDto} from "../dto/create-audit.dto";
 import {Transaction} from "sequelize";
 import {CreateAuditResultsDto} from "../dto/create-audit-results.dto";
-import {AuditableObject} from "../../auditable-object/infrastructure/auditable-object.model";
+import {AuditableObject} from "@/auditable-object/infrastructure/auditable-object.model";
 
 export class AuditsRepository {
     constructor(

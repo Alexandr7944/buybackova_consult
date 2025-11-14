@@ -1,12 +1,12 @@
 import {Column, DataType, HasMany, Model, Table} from "sequelize-typescript";
 import {CxMaturityQuestions} from "./cx_maturity_questions.models";
-import {CreateMaturityCategoryDto} from "../dto/create-maturity-level.dto";
+import {CreateMaturitySectionDto} from "../../dto/create-maturity-level.dto";
 
 @Table({
     timestamps: false,
-    tableName:  'cx_maturity_categories',
+    tableName:  'cx_maturity_sections',
 })
-export class CxMaturityCategories extends Model<CreateMaturityCategoryDto> {
+export class CxMaturitySections extends Model<CreateMaturitySectionDto> {
     @Column({
         type:       DataType.INTEGER,
         primaryKey: true,
@@ -22,5 +22,5 @@ export class CxMaturityCategories extends Model<CreateMaturityCategoryDto> {
     declare title: string;
 
     @HasMany(() => CxMaturityQuestions)
-    declare questions: CxMaturityQuestions[];
+    declare rows: CxMaturityQuestions[];
 }

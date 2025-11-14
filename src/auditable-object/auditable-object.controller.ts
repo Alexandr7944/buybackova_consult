@@ -2,7 +2,7 @@ import {Body, Controller, Get, HttpException, HttpStatus, Param, Patch, Post, Re
 import {AuditableObjectService} from './domain/auditable-object.service';
 import {CreateAuditableObjectDto} from './dto/create-auditable-object.dto';
 import {UpdateAuditableObjectDto} from './dto/update-auditable-object.dto';
-import {UserRequest} from "../users/types";
+import {UserRequest} from "@/users/types";
 
 @Controller('auditable-object')
 export class AuditableObjectController {
@@ -14,8 +14,12 @@ export class AuditableObjectController {
         @Req() req: UserRequest,
         @Body() createAuditableObjectDto: CreateAuditableObjectDto
     ) {
+        const companyId = createAuditableObjectDto.companyId || req.user.companyId;
+        if (!companyId)
+            throw new HttpException('Invalid companyId', HttpStatus.BAD_REQUEST);
+
         return await this.auditableObjectService.create({
-            companyId: createAuditableObjectDto.companyId || req.user.companyId,
+            companyId,
             name:      createAuditableObjectDto.name,
             address:   createAuditableObjectDto.address
         });

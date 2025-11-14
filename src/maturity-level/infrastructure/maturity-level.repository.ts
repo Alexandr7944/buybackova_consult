@@ -3,7 +3,7 @@ import {InjectModel} from "@nestjs/sequelize";
 import {CxMaturitySections} from "./models/cx_maturity_sections.models";
 import {CxMaturityCategories} from "./models/cx_maturity_categories.models";
 import {CxMaturityQuestions} from "./models/cx_maturity_questions.models";
-import {CreateMaturityCategoryDto, CreateMaturityQuestionDto, CreateMaturitySectionDto} from "./dto/create-maturity-level.dto";
+import {CreateMaturityCategoryDto, CreateMaturityQuestionDto, CreateMaturitySectionDto} from "../dto/create-maturity-level.dto";
 
 @Injectable()
 export class MaturityLevelRepository {

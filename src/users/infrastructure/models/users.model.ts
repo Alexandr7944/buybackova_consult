@@ -12,7 +12,7 @@ import {
 import {Role} from "./roles.model";
 import {UserRole} from "./user-roles.model";
 import {Profile} from "./profile.model";
-import {Company} from "../../../companies/infrastructure/models/company.model";
+import {Company} from "@/companies/infrastructure/models/company.model";
 
 @Table({
     tableName:  "users",
@@ -35,7 +35,7 @@ export class Users extends Model<Users, {}> {
     @ForeignKey(() => Company)
     @AllowNull(true)
     @Column(DataType.INTEGER)
-    declare companyId: number;
+    declare companyId: number | null;
 
     // Associations
     @BelongsToMany(() => Role, () => UserRole)

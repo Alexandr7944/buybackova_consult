@@ -2,8 +2,8 @@ import {Strategy} from 'passport-local';
 import {PassportStrategy} from '@nestjs/passport';
 import {HttpException, Injectable, UnauthorizedException} from '@nestjs/common';
 import {compareSync} from "bcrypt-ts";
-import {UsersService} from "../../users/domain/users.service";
-import {UserRequestAttributes} from "../../users/types";
+import {UsersService} from "@/users/domain/users.service";
+import {UserRequestAttributes} from "@/users/types";
 
 @Injectable()
 export class LocalStrategy extends PassportStrategy(Strategy) {

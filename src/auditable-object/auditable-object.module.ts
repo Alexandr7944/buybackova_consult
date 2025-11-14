@@ -4,7 +4,7 @@ import {AuditableObjectController} from './auditable-object.controller';
 import {AuditableObject} from "./infrastructure/auditable-object.model";
 import {SequelizeModule} from "@nestjs/sequelize";
 import {AuditableObjectRepository} from "./infrastructure/auditable-object.repository";
-import {Audit} from "../audits/infrastructure/models/audit.model";
+import {Audit} from "@/audits/infrastructure/models/audit.model";
 
 @Module({
     imports:     [

@@ -3,7 +3,7 @@ import {CreateAuditableObjectDto} from "../dto/create-auditable-object.dto";
 import {UpdateAuditableObjectDto} from "../dto/update-auditable-object.dto";
 import {InjectModel} from "@nestjs/sequelize";
 import {AuditableObject} from "./auditable-object.model";
-import {Audit} from "../../audits/infrastructure/models/audit.model";
+import {Audit} from "@/audits/infrastructure/models/audit.model";
 
 @Injectable()
 export class AuditableObjectRepository {

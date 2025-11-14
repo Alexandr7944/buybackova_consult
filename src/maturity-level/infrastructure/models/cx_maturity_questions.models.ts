@@ -1,6 +1,6 @@
 import {Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
 import {CxMaturitySections} from "./cx_maturity_sections.models";
-import {CreateMaturityQuestionDto} from "../dto/create-maturity-level.dto";
+import {CreateMaturityQuestionDto} from "../../dto/create-maturity-level.dto";
 import {CxMaturityCategories} from "./cx_maturity_categories.models";
 
 @Table({

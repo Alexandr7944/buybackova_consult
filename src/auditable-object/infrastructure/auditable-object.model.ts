@@ -10,8 +10,8 @@ import {
     Table
 } from "sequelize-typescript";
 import {CreateAuditableObjectDto} from "../dto/create-auditable-object.dto";
-import {Audit} from "../../audits/infrastructure/models/audit.model";
-import {Company} from "../../companies/infrastructure/models/company.model";
+import {Audit} from "@/audits/infrastructure/models/audit.model";
+import {Company} from "@/companies/infrastructure/models/company.model";
 
 @Table({
     tableName:  'auditable_objects',
@@ -37,7 +37,7 @@ export class AuditableObject extends Model<AuditableObject, CreateAuditableObjec
     declare audits: Audit[];
 
     @ForeignKey(() => Company)
-    @AllowNull(true)
+    @AllowNull(false)
     @Column(DataType.INTEGER)
     declare companyId: number;
 }

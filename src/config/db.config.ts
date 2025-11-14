@@ -1,15 +1,15 @@
 import env from './env/env';
-import {CxMaturitySections} from "../maturity-level/models/cx_maturity_sections.models";
-import {CxMaturityQuestions} from "../maturity-level/models/cx_maturity_questions.models";
-import {CxMaturityCategories} from "../maturity-level/models/cx_maturity_categories.models";
-import {Users} from "../users/infrastructure/models/users.model";
-import {Role} from "../users/infrastructure/models/roles.model";
-import {UserRole} from "../users/infrastructure/models/user-roles.model";
-import {Profile} from "../users/infrastructure/models/profile.model";
-import {AuditableObject} from "../auditable-object/infrastructure/auditable-object.model";
-import {Audit} from "../audits/infrastructure/models/audit.model";
-import {AuditResults} from "../audits/infrastructure/models/audit-results.model";
-import {Company} from "../companies/infrastructure/models/company.model";
+import {CxMaturitySections} from "@/maturity-level/infrastructure/models/cx_maturity_sections.models";
+import {CxMaturityQuestions} from "@/maturity-level/infrastructure/models/cx_maturity_questions.models";
+import {CxMaturityCategories} from "@/maturity-level/infrastructure/models/cx_maturity_categories.models";
+import {Users} from "@/users/infrastructure/models/users.model";
+import {Role} from "@/users/infrastructure/models/roles.model";
+import {UserRole} from "@/users/infrastructure/models/user-roles.model";
+import {Profile} from "@/users/infrastructure/models/profile.model";
+import {AuditableObject} from "@/auditable-object/infrastructure/auditable-object.model";
+import {Audit} from "@/audits/infrastructure/models/audit.model";
+import {AuditResults} from "@/audits/infrastructure/models/audit-results.model";
+import {Company} from "@/companies/infrastructure/models/company.model";
 
 const options = {
     host:        env.DB_HOST,

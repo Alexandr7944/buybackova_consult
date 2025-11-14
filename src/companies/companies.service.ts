@@ -1,10 +1,9 @@
-import {ForbiddenException, Inject, Injectable} from '@nestjs/common';
+import {Inject, Injectable} from '@nestjs/common';
 import {CreateCompanyDto} from './dto/create-company.dto';
 import {UpdateCompanyDto} from './dto/update-company.dto';
 import {CompaniesRepository} from "./infrastructure/companies.repository";
-import {UserRequestAttributes} from "../users/types";
 import {Sequelize} from "sequelize-typescript";
-import {UsersService} from "../users/domain/users.service";
+import {UsersService} from "@/users/domain/users.service";
 
 @Injectable()
 export class CompaniesService {
@@ -15,10 +14,7 @@ export class CompaniesService {
     ) {
     }
 
-    async create(user: UserRequestAttributes, createCompanyDto: CreateCompanyDto) {
-        if (!user.isAdmin)
-            throw new ForbiddenException('Forbidden');
-
+    async create(createCompanyDto: CreateCompanyDto) {
         const transaction = await this.sequelize.transaction();
         try {
             const {name, ownerId, users} = createCompanyDto;
@@ -35,10 +31,7 @@ export class CompaniesService {
         }
     }
 
-    async findAll(user: UserRequestAttributes) {
-        if (!user.isAdmin)
-            return [];
-
+    async findAll() {
         return await this.companiesRepository.findAll();
     }
 
@@ -46,13 +39,11 @@ export class CompaniesService {
         return `This action returns a #${id} company`;
     }
 
-    async update(user: UserRequestAttributes, id: number, updateCompanyDto: UpdateCompanyDto) {
-        if (!user.isAdmin)
-            throw new ForbiddenException('Forbidden');
-
+    async update(id: number, updateCompanyDto: UpdateCompanyDto) {
         const {name, ownerId, users} = updateCompanyDto;
         await this.companiesRepository.update(id, {name, ownerId});
-        await this.usersService.updateCompanyId([ownerId].concat(users || []), id);
+        const ids = users?.includes(ownerId) ? users : [ownerId].concat(users || []);
+        await this.usersService.updateCompanyId(ids, id);
         return {success: true};
     }
 

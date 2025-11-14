@@ -1,6 +1,6 @@
 import {AllowNull, AutoIncrement, BelongsTo, Column, DataType, ForeignKey, HasMany, Model, PrimaryKey, Table, Unique} from "sequelize-typescript";
-import {Users} from "../../../users/infrastructure/models/users.model";
-import {AuditableObject} from "../../../auditable-object/infrastructure/auditable-object.model";
+import {Users} from "@/users/infrastructure/models/users.model";
+import {AuditableObject} from "@/auditable-object/infrastructure/auditable-object.model";
 import {CreateCompanyDto} from "../../dto/create-company.dto";
 
 @Table({

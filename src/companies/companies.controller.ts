@@ -1,8 +1,8 @@
-import {Controller, Get, Post, Body, Patch, Param, Delete, Req} from '@nestjs/common';
+import {Controller, Get, Post, Body, Patch, Param} from '@nestjs/common';
 import {CompaniesService} from './companies.service';
 import {CreateCompanyDto} from './dto/create-company.dto';
 import {UpdateCompanyDto} from './dto/update-company.dto';
-import {UserRequest} from "../users/types";
+import {ForAdmin} from "@/auth/decorators/for-admin.decorator";
 
 @Controller('companies')
 export class CompaniesController {
@@ -11,32 +11,24 @@ export class CompaniesController {
     ) {
     }
 
+    @ForAdmin()
     @Post()
-    async create(@Req() req: UserRequest, @Body() createCompanyDto: CreateCompanyDto) {
-        return await this.companiesService.create(req.user, createCompanyDto);
+    async create(@Body() createCompanyDto: CreateCompanyDto) {
+        return await this.companiesService.create(createCompanyDto);
     }
 
+    @ForAdmin()
     @Get()
-    async findAll(@Req() req: UserRequest) {
-        return await this.companiesService.findAll(req.user);
+    async findAll() {
+        return await this.companiesService.findAll();
     }
 
-    @Get(':id')
-    findOne(@Param('id') id: string) {
-        return this.companiesService.findOne(+id);
-    }
-
+    @ForAdmin()
     @Patch(':id')
     async update(
-        @Req() req: UserRequest,
         @Param('id') id: string,
         @Body() updateCompanyDto: UpdateCompanyDto
     ) {
-        return await this.companiesService.update(req.user, +id, updateCompanyDto);
-    }
-
-    @Delete(':id')
-    remove(@Param('id') id: string) {
-        return this.companiesService.remove(+id);
+        return await this.companiesService.update(+id, updateCompanyDto);
     }
 }

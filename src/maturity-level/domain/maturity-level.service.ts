@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
-import {CreateMaturityCategoryDto, CreateMaturityQuestionDto, CreateMaturitySectionDto} from './dto/create-maturity-level.dto';
-import {MaturityLevelRepository} from "./maturity-level.repository";
-import {XlsxReader} from "../common/xlsx/xlsx.reader";
+import {CreateMaturityCategoryDto, CreateMaturityQuestionDto, CreateMaturitySectionDto} from '../dto/create-maturity-level.dto';
+import {MaturityLevelRepository} from "../infrastructure/maturity-level.repository";
+import {XlsxReader} from "@/common/xlsx/xlsx.reader";
 
 export type ReportItem = { title: string, total: number, resultByQuestion: number, result: number };
 export type ReportType = {

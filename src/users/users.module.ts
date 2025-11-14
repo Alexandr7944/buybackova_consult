@@ -7,7 +7,7 @@ import {Role} from "./infrastructure/models/roles.model";
 import {UserRole} from "./infrastructure/models/user-roles.model";
 import {Profile} from "./infrastructure/models/profile.model";
 import { UsersController } from './users.controller';
-import {Company} from "../companies/infrastructure/models/company.model";
+import {Company} from "@/companies/infrastructure/models/company.model";
 
 @Module({
     imports:   [
