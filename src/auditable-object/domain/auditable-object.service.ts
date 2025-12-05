@@ -20,7 +20,7 @@ export class AuditableObjectService {
             return await this.auditableObjectRepository.findAll();
 
         if (user.companyId)
-            return await this.auditableObjectRepository.findAllByCompanyId(user.companyId);
+            return await this.auditableObjectRepository.findAll({where: {companyId: user.companyId}});
 
         return [];
     }

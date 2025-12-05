@@ -4,6 +4,8 @@ import {UpdateAuditableObjectDto} from "../dto/update-auditable-object.dto";
 import {InjectModel} from "@nestjs/sequelize";
 import {AuditableObject} from "./auditable-object.model";
 import {Audit} from "@/audits/infrastructure/models/audit.model";
+import {Sequelize} from "sequelize-typescript";
+import {WhereOptions} from "sequelize";
 
 @Injectable()
 export class AuditableObjectRepository {
@@ -17,15 +19,22 @@ export class AuditableObjectRepository {
         return await this.auditableObjectModel.create(createAuditableObjectDto);
     }
 
-    async findAll() {
+    async findAll(params?: { where?: WhereOptions<AuditableObject> }) {
         return await this.auditableObjectModel.findAll({
-            order: [['createdAt', 'DESC']],
-        });
-    }
-
-    async findAllByCompanyId(companyId: number) {
-        return await this.auditableObjectModel.findAll({
-            where: {companyId},
+            where:      params?.where || {},
+            attributes: ['id', 'name', 'address', 'companyId',
+                [Sequelize.fn('COUNT', Sequelize.col('audits.id')), 'auditCount']
+            ],
+            include:    [
+                {
+                    model:      this.auditModel,
+                    as:         'audits',
+                    attributes: [],
+                    required:   false,
+                }
+            ],
+            group:      [this.auditableObjectModel.name + '.id'],
+            order:      [['createdAt', 'DESC']],
         });
     }
 
