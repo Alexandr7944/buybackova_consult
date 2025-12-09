@@ -7,6 +7,9 @@ import {Transaction} from "sequelize";
 import {Sequelize} from "sequelize-typescript";
 import {MaturityLevelService, ReportItem} from "@/maturity-level/domain/maturity-level.service";
 import {Audit} from "../infrastructure/models/audit.model";
+import * as XLSX from "xlsx-js-style";
+import {XlsxHelper} from "@/common/xlsx/xlsx.reader";
+import {format} from "date-fns";
 
 type ReportItemsType = {
     category: Array<ReportItem>
@@ -134,5 +137,157 @@ export class AuditsService {
             await transaction.rollback();
             throw error;
         }
+    }
+
+    async downloadReportXlsx(id: number) {
+        const audit = await this.findOne(id);
+        if (!audit)
+            throw new HttpException('Not Found', HttpStatus.NOT_FOUND);
+
+        const wb = XLSX.utils.book_new();
+        const rows = [
+            ["Протокол аудита"],
+            [],
+            ...[["Название объекта:", audit.object.name],
+                ["Адрес объекта:", audit.object.address],
+                ["Аудитор:", audit.auditorName],
+                ["Представитель заказчика:", audit.ownerSignerName],
+                ["Дата оценки:", format(audit.date || audit.createdAt, 'dd.MM.yyyy')],
+                ["Общая оценка уровня развития системы управления клиентским опытом:", audit.resultValue ? audit.resultValue + '%' : 0],
+                ["Уровень зрелости:", audit.resultDescription]].map(([title, value]) => [
+                {v: title, t: 's', s: {border: this.border}},
+                {v: value, t: 's', s: {border: this.border}},
+            ]),
+            this.rowBorder,
+            ...this.getReportTable(audit, "Анализ по разделам стандарта ISO 23592:2021", "section", audit.sectionDescription),
+            this.rowBorder,
+            ...this.getReportTable(audit, "Анализ по категориям СХ-системы", "category", audit.categoryDescription),
+            this.rowBorderTop,
+            [{v: audit.reportDescription || '', t: 's', s: {alignment: {wrapText: true, vertical: 'top', horizontal: 'left'}}}]
+        ];
+        const ws: Record<string, any> = XLSX.utils.aoa_to_sheet(rows)
+        ws['!cols'] = [{wch: 70}, {wch: 25}];
+
+        const rowDescriptionIndex = [20, 34, 36];
+        ws['!rows'] = rows.map((_row, index) =>
+            rowDescriptionIndex.includes(index) ? {
+                hpx: XlsxHelper.calculateRowHeight(
+                    ws[XLSX.utils.encode_cell({r: index, c: 0})].v,
+                    ws['!cols'][0].wch + ws['!cols'][1].wch
+                )
+            } : {
+                hpx: 20
+            }
+        );
+        ws['!merges'] = [
+            {s: {r: 0, c: 0}, e: {r: 0, c: 1}},
+            {s: {r: 10, c: 0}, e: {r: 10, c: 1}},
+            {s: {r: 20, c: 0}, e: {r: 20, c: 1}},
+            {s: {r: 22, c: 0}, e: {r: 22, c: 1}},
+            {s: {r: 34, c: 0}, e: {r: 34, c: 1}},
+            {s: {r: 36, c: 0}, e: {r: 36, c: 1}},
+        ];
+
+        XLSX.utils.book_append_sheet(wb, ws, 'Отчет');
+
+        return XLSX.write(wb, {
+            type:       'buffer',
+            bookType:   'xlsx',
+            cellStyles: true
+        });
+    }
+
+    get border() {
+        return {
+            top:    {style: 'thin', color: {rgb: "000000"}},
+            bottom: {style: 'thin', color: {rgb: "000000"}},
+            left:   {style: 'thin', color: {rgb: "000000"}},
+            right:  {style: 'thin', color: {rgb: "000000"}},
+        }
+    }
+
+    get rowBorder() {
+        return [{
+            v: "", t: 's', s: {
+                border: {
+                    top:    {style: 'thin', color: {rgb: "000000"}},
+                    bottom: {style: 'thin', color: {rgb: "000000"}},
+                }
+            }
+        }, {
+            v: "", t: 's', s: {
+                border: {
+                    top:    {style: 'thin', color: {rgb: "000000"}},
+                    bottom: {style: 'thin', color: {rgb: "000000"}},
+                }
+            }
+        }]
+    }
+
+    get rowBorderTop() {
+        return [{
+            v: "", t: 's', s: {
+                border: {
+                    top: {style: 'thin', color: {rgb: "000000"}},
+                }
+            }
+        }, {
+            v: "", t: 's', s: {
+                border: {
+                    top: {style: 'thin', color: {rgb: "000000"}},
+                }
+            }
+        }]
+    }
+
+    getReportTable(audit: Audit, title: string, type: string, description: string) {
+        return [
+            [
+                {
+                    v: title,
+                    t: 's',
+                    s: {border: this.border, font: {bold: true}}
+                },
+                {
+                    v: "",
+                    t: 's',
+                    s: {border: this.border}
+                }
+            ],
+            [
+                {
+                    v: "Тип",
+                    t: 's',
+                    s: {border: this.border, font: {bold: true}}
+                },
+                {
+                    v: "Результат",
+                    t: 's',
+                    s: {border: this.border, font: {bold: true}}
+                }
+            ],
+            ...audit.results
+                .filter((audit) => audit.type === type)
+                .map(report => [
+                    {v: report.title, t: 's', s: {border: this.border}},
+                    {
+                        v: report.resultByQuestion ? report.resultByQuestion + '%' : 0,
+                        t: 's',
+                        s: {border: this.border}
+                    },
+                ]),
+            this.descriptionStyle(description),
+        ]
+    }
+
+    descriptionStyle(text: string) {
+        return [{
+            v: text || '',
+            t: 's',
+            s: {
+                border:    this.border,
+                alignment: {wrapText: true, vertical: 'top', horizontal: 'left'}
+            }
+        }, {v: "", t: 's', s: {border: this.border}}]
     }
 }

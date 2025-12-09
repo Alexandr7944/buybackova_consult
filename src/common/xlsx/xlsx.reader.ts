@@ -1,4 +1,4 @@
-import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx-js-style';
 
 export interface XlsxParseOptions {
     sheetName?: string;     // Имя листа (если не указано — возьмём первый)
@@ -10,7 +10,7 @@ export interface XlsxParseResult<T = any> {
     rows: T[];              // Каждая строка — объект { Колонка: Значение }
 }
 
-export class XlsxReader {
+export class XlsxHelper {
     static parse<T = any>(buffer: Buffer, options?: XlsxParseOptions): XlsxParseResult<T> {
         if (!buffer || buffer.length === 0) {
             throw new Error('XLSX buffer is empty');
@@ -43,5 +43,45 @@ export class XlsxReader {
         });
 
         return { sheetName, rows };
+    }
+
+    static create(data: Record<string, string | number>[], sheetName = 'Отчет') {
+        const wb = XLSX.utils.book_new();
+        const ws = XLSX.utils.json_to_sheet(data);
+        XLSX.utils.book_append_sheet(wb, ws, sheetName);
+        return XLSX.write(wb, {type: 'buffer', bookType: 'xlsx'});
+    }
+    
+    static calculateRowHeight(text: string, columnWidth: number, lineHeightPx: number = 20): number {
+        if (!text) {
+            return lineHeightPx;
+        }
+
+        const avgCharWidth = 0.7;
+        const maxCharsPerLine = Math.floor(columnWidth / avgCharWidth);
+        if (text.length <= maxCharsPerLine) {
+            return lineHeightPx;
+        }
+
+        const words = text.split(' ');
+        let currentLineLength = 0;
+        let lineCount = 1;
+
+        for (const word of words) {
+            if (word.length > maxCharsPerLine) {
+                lineCount++;
+                currentLineLength = 0;
+                continue;
+            }
+
+            if (currentLineLength + word.length + 1 > maxCharsPerLine) {
+                lineCount++;
+                currentLineLength = word.length + 1; // +1 для пробела
+            } else {
+                currentLineLength += word.length + 1; // +1 для пробела
+            }
+        }
+
+        return lineCount * lineHeightPx;
     }
 }

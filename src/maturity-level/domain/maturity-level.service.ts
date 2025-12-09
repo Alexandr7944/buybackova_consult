@@ -1,7 +1,7 @@
 import {BadRequestException, Injectable} from '@nestjs/common';
 import {CreateMaturityCategoryDto, CreateMaturityQuestionDto, CreateMaturitySectionDto} from '../dto/create-maturity-level.dto';
 import {MaturityLevelRepository} from "../infrastructure/maturity-level.repository";
-import {XlsxReader} from "@/common/xlsx/xlsx.reader";
+import {XlsxHelper} from "@/common/xlsx/xlsx.reader";
 
 export type ReportItem = { title: string, total: number, resultByQuestion: number, result: number };
 export type ReportType = {
@@ -112,7 +112,7 @@ export class MaturityLevelService {
             throw new BadRequestException('File is required. Send multipart/form-data with "file" field.');
         }
 
-        const {sheetName, rows} = XlsxReader.parse<any>(file.buffer, {
+        const {sheetName, rows} = XlsxHelper.parse<any>(file.buffer, {
             sheetName: 'аудит ISO 23592',
             headerRow: 1,
         });
