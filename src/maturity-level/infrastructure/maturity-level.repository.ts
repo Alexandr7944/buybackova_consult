@@ -3,13 +3,21 @@ import {InjectModel} from "@nestjs/sequelize";
 import {CxMaturitySections} from "./models/cx_maturity_sections.models";
 import {CxMaturityCategories} from "./models/cx_maturity_categories.models";
 import {CxMaturityQuestions} from "./models/cx_maturity_questions.models";
-import {CreateMaturityCategoryDto, CreateMaturityQuestionDto, CreateMaturitySectionDto} from "../dto/create-maturity-level.dto";
+import {CxMaturityTools} from "@/maturity-level/infrastructure/models/cx_maturity_tools.models";
+import {
+    CreateMaturityCategoryDto,
+    CreateMaturityQuestionDto,
+    CreateMaturitySectionDto,
+    CreateMaturityToolDto
+} from "../dto/create-maturity-level.dto";
+import {Transaction} from "sequelize";
 
 @Injectable()
 export class MaturityLevelRepository {
     constructor(
         @InjectModel(CxMaturitySections) private readonly cxMaturitySectionsModel: typeof CxMaturitySections,
         @InjectModel(CxMaturityCategories) private readonly cxMaturityCategoriesModel: typeof CxMaturityCategories,
+        @InjectModel(CxMaturityTools) private readonly cxMaturityToolsModel: typeof CxMaturityTools,
         @InjectModel(CxMaturityQuestions) private readonly cxMaturityQuestionsModel: typeof CxMaturityQuestions,
     ) {
     }
@@ -54,21 +62,26 @@ export class MaturityLevelRepository {
         }) as CreateMaturityCategoryDto)
     }
 
-    async truncateTables(): Promise<void> {
-        await this.cxMaturitySectionsModel.truncate({cascade: true});
-        await this.cxMaturityCategoriesModel.truncate({cascade: true});
-        await this.cxMaturityQuestionsModel.truncate({cascade: true});
+    async truncateTables(transaction: Transaction): Promise<void> {
+        await this.cxMaturitySectionsModel.truncate({cascade: true, transaction});
+        await this.cxMaturityCategoriesModel.truncate({cascade: true, transaction});
+        await this.cxMaturityToolsModel.truncate({cascade: true, transaction});
+        await this.cxMaturityQuestionsModel.truncate({cascade: true, transaction});
     }
 
-    async createSections(sections: CreateMaturitySectionDto[]): Promise<void> {
-        await this.cxMaturitySectionsModel.bulkCreate(sections);
+    async createSections(sections: CreateMaturitySectionDto[], transaction: Transaction): Promise<void> {
+        await this.cxMaturitySectionsModel.bulkCreate(sections, {transaction});
     }
 
-    async createCategories(categories: CreateMaturityCategoryDto[]): Promise<void> {
-        await this.cxMaturityCategoriesModel.bulkCreate(categories);
+    async createCategories(categories: CreateMaturityCategoryDto[], transaction: Transaction): Promise<void> {
+        await this.cxMaturityCategoriesModel.bulkCreate(categories, {transaction});
     }
 
-    async createQuestions(questions: CreateMaturityQuestionDto[]): Promise<void> {
-        await this.cxMaturityQuestionsModel.bulkCreate(questions);
+    async createQuestions(questions: CreateMaturityQuestionDto[], transaction: Transaction): Promise<void> {
+        await this.cxMaturityQuestionsModel.bulkCreate(questions, {transaction});
+    }
+
+    async createTools(tools: CreateMaturityToolDto[], transaction: Transaction): Promise<void> {
+        await this.cxMaturityToolsModel.bulkCreate(tools, {transaction});
     }
 }

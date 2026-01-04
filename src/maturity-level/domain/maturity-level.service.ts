@@ -1,7 +1,15 @@
-import {BadRequestException, Injectable} from '@nestjs/common';
-import {CreateMaturityCategoryDto, CreateMaturityQuestionDto, CreateMaturitySectionDto} from '../dto/create-maturity-level.dto';
+import {BadRequestException, Inject, Injectable} from '@nestjs/common';
+import {
+    CreateMaturityCategoryDto,
+    CreateMaturityQuestionDto,
+    CreateMaturitySectionDto,
+    CreateMaturityToolDto
+} from '../dto/create-maturity-level.dto';
 import {MaturityLevelRepository} from "../infrastructure/maturity-level.repository";
 import {XlsxHelper} from "@/common/xlsx/xlsx.reader";
+import {Sequelize} from "sequelize-typescript";
+import sequelize from "sequelize";
+import assert from "node:assert";
 
 export type ReportItem = { title: string, total: number, resultByQuestion: number, result: number };
 export type ReportType = {
@@ -14,6 +22,7 @@ export type ReportType = {
 export class MaturityLevelService {
     constructor(
         private readonly maturityLevelRepository: MaturityLevelRepository,
+        @Inject(Sequelize) private readonly sequelize: Sequelize
     ) {
     }
 
@@ -122,15 +131,17 @@ export class MaturityLevelService {
         }
 
         const categoryDto: Record<string, CreateMaturityCategoryDto> = {};
+        const toolDto: Record<string, CreateMaturityToolDto> = {};
         const sectionDto: CreateMaturitySectionDto[] = [];
         const questionDto: CreateMaturityQuestionDto[] = [];
 
         let categoryId = 1;
         let questionId = 1;
         let sectionId = 1;
+        let toolId = 1;
 
         rows.forEach((row: Record<string, string>) => {
-            const values = Object.values(row).slice(1, 5).filter(Boolean);
+            const values = Object.values(row).slice(1, 7).filter(Boolean);
             if (values.length === 1) {
                 sectionDto.push({
                     id:    sectionId,
@@ -138,12 +149,19 @@ export class MaturityLevelService {
                 });
                 sectionId++;
             } else if (values.length > 1) {
-
                 const category = row['Категория системы управления клиентским опытом'];
                 if (category && !categoryDto[category]) {
                     categoryDto[category] = {id: categoryId, title: category};
                     categoryId++;
                 }
+
+                const tool = row['Рекомендуемые инструменты СХ'];
+                if (tool && !toolDto[tool]) {
+                    toolDto[tool] = {id: toolId, title: tool};
+                    toolId++;
+                }
+
+                assert.ok(values[0] && values[1], 'Question and standard are required')
 
                 questionDto.push({
                     id:         questionId,
@@ -151,15 +169,25 @@ export class MaturityLevelService {
                     question:   values[1],
                     sectionId:  sectionDto.length,
                     categoryId: categoryDto[values[3] as keyof typeof categoryDto]?.id || null,
+                    toolId:     toolDto[values[5] as keyof typeof toolDto]?.id || null,
                 })
                 questionId++;
             }
         });
 
-        await this.maturityLevelRepository.truncateTables();
-        await this.maturityLevelRepository.createSections(sectionDto);
-        await this.maturityLevelRepository.createCategories(Object.values(categoryDto));
-        await this.maturityLevelRepository.createQuestions(questionDto);
+        let transaction: sequelize.Transaction | null = null;
+        try {
+            transaction = await this.sequelize.transaction();
+            await this.maturityLevelRepository.truncateTables(transaction);
+            await this.maturityLevelRepository.createSections(sectionDto, transaction);
+            await this.maturityLevelRepository.createCategories(Object.values(categoryDto), transaction);
+            await this.maturityLevelRepository.createTools(Object.values(toolDto), transaction);
+            await this.maturityLevelRepository.createQuestions(questionDto, transaction);
+            await transaction.commit();
+        } catch (error) {
+            transaction && await transaction.rollback();
+            throw error;
+        }
 
         console.log(`
             Updated database with maturity levels from XLSX file. 
