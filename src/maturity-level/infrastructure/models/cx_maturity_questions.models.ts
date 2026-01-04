@@ -1,7 +1,8 @@
-import {Column, DataType, ForeignKey, Model, Table} from "sequelize-typescript";
-import {CxMaturitySections} from "./cx_maturity_sections.models";
-import {CreateMaturityQuestionDto} from "../../dto/create-maturity-level.dto";
-import {CxMaturityCategories} from "./cx_maturity_categories.models";
+import {Column, DataType, ForeignKey, Model, Table} from 'sequelize-typescript';
+import {CxMaturitySections} from './cx_maturity_sections.models';
+import {CreateMaturityQuestionDto} from '../../dto/create-maturity-level.dto';
+import {CxMaturityCategories} from './cx_maturity_categories.models';
+import {CxMaturityTools} from '@/maturity-level/infrastructure/models/cx_maturity_tools.models';
 
 @Table({
     timestamps: false,
@@ -36,7 +37,12 @@ export class CxMaturityQuestions extends Model<CxMaturityQuestions, CreateMaturi
     @ForeignKey(() => CxMaturitySections)
     @Column({
         type:      DataType.INTEGER,
-        allowNull: false,
     })
     declare sectionId: number;
+
+    @ForeignKey(() => CxMaturityTools)
+    @Column({
+        type:      DataType.INTEGER,
+    })
+    declare toolId: number;
 }

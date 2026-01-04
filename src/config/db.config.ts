@@ -2,6 +2,7 @@ import env from './env/env';
 import {CxMaturitySections} from "@/maturity-level/infrastructure/models/cx_maturity_sections.models";
 import {CxMaturityQuestions} from "@/maturity-level/infrastructure/models/cx_maturity_questions.models";
 import {CxMaturityCategories} from "@/maturity-level/infrastructure/models/cx_maturity_categories.models";
+import {CxMaturityTools} from "@/maturity-level/infrastructure/models/cx_maturity_tools.models";
 import {Users} from "@/users/infrastructure/models/users.model";
 import {Role} from "@/users/infrastructure/models/roles.model";
 import {UserRole} from "@/users/infrastructure/models/user-roles.model";
@@ -31,7 +32,7 @@ const config = {
         Company,
         Users, Role, UserRole, Profile,
         AuditableObject, Audit, AuditResults,
-        CxMaturityQuestions, CxMaturitySections, CxMaturityCategories,
+        CxMaturityQuestions, CxMaturitySections, CxMaturityCategories, CxMaturityTools
     ],
 };
 

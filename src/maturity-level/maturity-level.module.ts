@@ -6,10 +6,11 @@ import {CxMaturityQuestions} from "./infrastructure/models/cx_maturity_questions
 import {CxMaturitySections} from "./infrastructure/models/cx_maturity_sections.models";
 import {MaturityLevelRepository} from "./infrastructure/maturity-level.repository";
 import {CxMaturityCategories} from "./infrastructure/models/cx_maturity_categories.models";
+import {CxMaturityTools} from "@/maturity-level/infrastructure/models/cx_maturity_tools.models";
 
 @Module({
     imports:     [
-        SequelizeModule.forFeature([CxMaturityQuestions, CxMaturitySections, CxMaturityCategories])
+        SequelizeModule.forFeature([CxMaturityQuestions, CxMaturitySections, CxMaturityCategories, CxMaturityTools])
     ],
     controllers: [MaturityLevelController],
     providers:   [MaturityLevelService, MaturityLevelRepository],

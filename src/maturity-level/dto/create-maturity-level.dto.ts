@@ -4,6 +4,7 @@ export class CreateMaturityQuestionDto {
     question: string;
     sectionId: number;
     categoryId: number | null;
+    toolId: number | null;
 }
 
 export class CreateMaturitySectionDto {
@@ -13,6 +14,12 @@ export class CreateMaturitySectionDto {
 }
 
 export class CreateMaturityCategoryDto {
+    id: number;
+    title: string;
+    questions?: Array<number>;
+}
+
+export class CreateMaturityToolDto {
     id: number;
     title: string;
     questions?: Array<number>;
