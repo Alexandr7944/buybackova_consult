@@ -15,6 +15,7 @@ export type ReportItem = { title: string, total: number, resultByQuestion: numbe
 export type ReportType = {
     category: Array<ReportItem>,
     section: Array<ReportItem>,
+    tool: Array<ReportItem>,
     total: { totalValue: number, description: string }
 }
 
@@ -34,9 +35,10 @@ export class MaturityLevelService {
         // {[questionId: number]: resultByQuestion}
         const reportByCategory = await this.getReportByCategory(dataIds);
         const reportBySection = await this.getReportBySection(dataIds);
+        const reportByTool = await this.getReportByTool(dataIds);
         const totalReport = await this.getTotalReport(reportBySection);
 
-        return {category: reportByCategory, section: reportBySection, total: totalReport};
+        return {category: reportByCategory, section: reportBySection, tool: reportByTool, total: totalReport};
     }
 
     private async getReportByCategory(dataIds: Record<string, number>) {
@@ -82,6 +84,27 @@ export class MaturityLevelService {
             })
         })
 
+        return result;
+    }
+
+    private async getReportByTool(dataIds: Record<string, number>) {
+        const result: Array<{ title: string, total: number, resultByQuestion: number, result: number }> = [];
+        const tools = await this.maturityLevelRepository.getTools();
+
+        tools.forEach((tool) => {
+            let resultByQuestion = 0;
+            tool.questions?.forEach((question) => {
+                if (dataIds[question])
+                    resultByQuestion += dataIds[question];
+            })
+            const total = (tool.questions?.length || 0) * 3;
+            result.push({
+                title:            tool.title,
+                total,
+                resultByQuestion: resultByQuestion,
+                result:           +(resultByQuestion / total * 100).toFixed(2),
+            })
+        });
         return result;
     }
 

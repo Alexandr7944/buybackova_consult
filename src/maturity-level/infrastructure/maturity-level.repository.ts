@@ -62,6 +62,20 @@ export class MaturityLevelRepository {
         }) as CreateMaturityCategoryDto)
     }
 
+    async getTools(): Promise<CreateMaturityToolDto[]> {
+        const res = await this.cxMaturityToolsModel.findAll({
+            include: [{
+                model:      CxMaturityQuestions,
+                as:         'questions',
+                attributes: ['id']
+            }]
+        });
+        return res.map(tool => ({
+            ...tool.dataValues,
+            questions: tool.questions.map(question => question.dataValues.id)
+        }) as CreateMaturityToolDto);
+    }
+
     async truncateTables(transaction: Transaction): Promise<void> {
         await this.cxMaturitySectionsModel.truncate({cascade: true, transaction});
         await this.cxMaturityCategoriesModel.truncate({cascade: true, transaction});
