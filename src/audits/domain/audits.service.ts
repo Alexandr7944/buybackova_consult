@@ -146,7 +146,7 @@ export class AuditsService {
 
         const wb = XLSX.utils.book_new();
         const rows = [
-            ["Протокол аудита"],
+            [{v: "Протокол аудита", t: 's', s: {font: {bold: true}}}],
             [],
             ...[["Название объекта:", audit.object.name],
                 ["Адрес объекта:", audit.object.address],
@@ -154,9 +154,10 @@ export class AuditsService {
                 ["Представитель заказчика:", audit.ownerSignerName],
                 ["Дата оценки:", format(audit.date || audit.createdAt, 'dd.MM.yyyy')],
                 ["Общая оценка уровня развития системы управления клиентским опытом:", audit.resultValue ? audit.resultValue + '%' : 0],
-                ["Уровень зрелости:", audit.resultDescription]].map(([title, value]) => [
-                {v: title, t: 's', s: {border: this.border}},
-                {v: value, t: 's', s: {border: this.border}},
+                ["Уровень зрелости:", audit.resultDescription]]
+                .map(([title, value]) => [
+                {v: title, t: 's', s: {border: this.border, alignment: {wrapText: true, vertical: 'top', horizontal: 'left'}}},
+                {v: value, t: 's', s: {border: this.border, alignment: {wrapText: true, vertical: 'top', horizontal: 'left'}}},
             ]),
             this.rowBorder,
             ...this.getReportTable(audit, "Анализ по разделам стандарта ISO 23592:2021", "section", audit.sectionDescription),
@@ -169,14 +170,17 @@ export class AuditsService {
         ws['!cols'] = [{wch: 70}, {wch: 25}];
 
         const rowDescriptionIndex = [20, 34, 36];
-        ws['!rows'] = rows.map((_row, index) =>
+        ws['!rows'] = rows.map((row, index) =>
             rowDescriptionIndex.includes(index) ? {
                 hpx: XlsxHelper.calculateRowHeight(
-                    ws[XLSX.utils.encode_cell({r: index, c: 0})].v,
+                    ws[XLSX.utils.encode_cell({r: index, c: 0})]?.v,
                     ws['!cols'][0].wch + ws['!cols'][1].wch
                 )
             } : {
-                hpx: 20
+                hpx: XlsxHelper.calculateRowHeight(
+                    ws[XLSX.utils.encode_cell({r: index, c: 0})]?.v,
+                    ws['!cols'][0].wch
+                )
             }
         );
         ws['!merges'] = [
@@ -271,7 +275,7 @@ export class AuditsService {
                 .map(report => [
                     {v: report.title, t: 's', s: {border: this.border}},
                     {
-                        v: report.resultByQuestion ? report.resultByQuestion + '%' : 0,
+                        v: report.percentage ? report.percentage + '%' : 0,
                         t: 's',
                         s: {border: this.border}
                     },
