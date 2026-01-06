@@ -29,7 +29,7 @@ export class AuditsRepository {
                     model:      this.auditResultsModel,
                     as:         'results',
                     attributes: ['id', 'title', 'type', 'total', 'resultByQuestion', 'percentage'],
-                    order:      [['type', 'ASC']]
+                    order:      [['title', 'ASC']]
                 },
                 {
                     model: this.auditableObjectModel,

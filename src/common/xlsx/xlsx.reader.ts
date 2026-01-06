@@ -16,7 +16,7 @@ export class XlsxHelper {
             throw new Error('XLSX buffer is empty');
         }
 
-        const workbook = XLSX.read(buffer, { type: 'buffer' });
+        const workbook = XLSX.read(buffer, {type: 'buffer'});
         const sheetName = options?.sheetName ?? workbook.SheetNames?.[0];
 
         if (!sheetName) {
@@ -38,11 +38,11 @@ export class XlsxHelper {
 
         const rows = XLSX.utils.sheet_to_json<T>(worksheet, {
             defval: null,   // пустые ячейки -> null
-            raw: true,      // не форматируем значения
+            raw:    true,      // не форматируем значения
             range,          // ограничиваем диапазон, если задан headerRow
         });
 
-        return { sheetName, rows };
+        return {sheetName, rows};
     }
 
     static create(data: Record<string, string | number>[], sheetName = 'Отчет') {
@@ -51,36 +51,35 @@ export class XlsxHelper {
         XLSX.utils.book_append_sheet(wb, ws, sheetName);
         return XLSX.write(wb, {type: 'buffer', bookType: 'xlsx'});
     }
-    
+
     static calculateRowHeight(text: string, columnWidth: number, lineHeightPx: number = 20): number {
         if (!text) {
             return lineHeightPx;
         }
 
-        const avgCharWidth = 0.7;
+        const avgCharWidth = 0.65;
         const maxCharsPerLine = Math.floor(columnWidth / avgCharWidth);
         if (text.length <= maxCharsPerLine) {
             return lineHeightPx;
         }
 
-        const words = text.split(' ');
         let currentLineLength = 0;
-        let lineCount = 1;
+        let lineCount = 0;
 
-        for (const word of words) {
-            if (word.length > maxCharsPerLine) {
-                lineCount++;
-                currentLineLength = 0;
-                continue;
-            }
+        text.split('\n').forEach(line => {
+            const words = line.split(' ');
+            for (const word of words) {
+                if (currentLineLength + word.length + 1 > maxCharsPerLine) {
+                    lineCount++;
+                    currentLineLength = word.length;
+                    continue;
+                }
 
-            if (currentLineLength + word.length + 1 > maxCharsPerLine) {
-                lineCount++;
-                currentLineLength = word.length + 1; // +1 для пробела
-            } else {
-                currentLineLength += word.length + 1; // +1 для пробела
+                currentLineLength += word.length + 1;
             }
-        }
+            lineCount++;
+            currentLineLength = 0;
+        });
 
         return lineCount * lineHeightPx;
     }

@@ -10,6 +10,7 @@ import {Audit} from "../infrastructure/models/audit.model";
 import * as XLSX from "xlsx-js-style";
 import {XlsxHelper} from "@/common/xlsx/xlsx.reader";
 import {format} from "date-fns";
+import {AuditResults} from "@/audits/infrastructure/models/audit-results.model";
 
 type ReportItemsType = {
     category: Array<ReportItem>
@@ -156,18 +157,20 @@ export class AuditsService {
                 ["Общая оценка уровня развития системы управления клиентским опытом:", audit.resultValue ? audit.resultValue + '%' : 0],
                 ["Уровень зрелости:", audit.resultDescription]]
                 .map(([title, value]) => [
-                {v: title, t: 's', s: {border: this.border, alignment: {wrapText: true, vertical: 'top', horizontal: 'left'}}},
-                {v: value, t: 's', s: {border: this.border, alignment: {wrapText: true, vertical: 'top', horizontal: 'left'}}},
-            ]),
+                    {v: title, t: 's', s: {border: this.border, alignment: {wrapText: true, vertical: 'top', horizontal: 'left'}}},
+                    {v: value, t: 's', s: {border: this.border, alignment: {wrapText: true, vertical: 'top', horizontal: 'left'}}},
+                ]),
             this.rowBorder,
             ...this.getReportTable(audit, "Анализ по разделам стандарта ISO 23592:2021", "section", audit.sectionDescription),
             this.rowBorder,
             ...this.getReportTable(audit, "Анализ по категориям СХ-системы", "category", audit.categoryDescription),
+            this.rowBorder,
+            ...this.getReportTable(audit, "Значимость инструмента при внедрении СХ-системы", "tool", audit.toolDescription),
             this.rowBorderTop,
             [{v: audit.reportDescription || '', t: 's', s: {alignment: {wrapText: true, vertical: 'top', horizontal: 'left'}}}]
         ];
         const ws: Record<string, any> = XLSX.utils.aoa_to_sheet(rows)
-        ws['!cols'] = [{wch: 70}, {wch: 25}];
+        ws['!cols'] = [{wch: 70}, {wch: 35}];
 
         const rowDescriptionIndex = [20, 34, 36];
         ws['!rows'] = rows.map((row, index) =>
@@ -190,6 +193,8 @@ export class AuditsService {
             {s: {r: 22, c: 0}, e: {r: 22, c: 1}},
             {s: {r: 34, c: 0}, e: {r: 34, c: 1}},
             {s: {r: 36, c: 0}, e: {r: 36, c: 1}},
+            {s: {r: 84, c: 0}, e: {r: 84, c: 1}},
+            {s: {r: 86, c: 0}, e: {r: 86, c: 1}},
         ];
 
         XLSX.utils.book_append_sheet(wb, ws, 'Отчет');
@@ -245,6 +250,14 @@ export class AuditsService {
     }
 
     getReportTable(audit: Audit, title: string, type: string, description: string) {
+        const getValue = (report: AuditResults): string => {
+            if (type === 'tool') {
+                return `${report.total / 3} / ${report.resultByQuestion}`
+            } else if (report.percentage) {
+                return `${report.percentage}%`
+            }
+            return '0';
+        };
         return [
             [
                 {
@@ -265,17 +278,21 @@ export class AuditsService {
                     s: {border: this.border, font: {bold: true}}
                 },
                 {
-                    v: "Результат",
+                    v: type === 'tool' ? "Значимость / Уровень применения" : "Результат",
                     t: 's',
-                    s: {border: this.border, font: {bold: true}}
+                    s: {
+                        border:    this.border,
+                        font:      {bold: true}
+                    }
                 }
             ],
             ...audit.results
                 .filter((audit) => audit.type === type)
+                .sort((a, b) => a.title.localeCompare(b.title))
                 .map(report => [
                     {v: report.title, t: 's', s: {border: this.border}},
                     {
-                        v: report.percentage ? report.percentage + '%' : 0,
+                        v: getValue(report),
                         t: 's',
                         s: {border: this.border}
                     },
