@@ -67,6 +67,9 @@ export class Audit extends Model<Audit, CreateAuditDto> {
     declare sectionDescription: string;
 
     @Column(DataType.TEXT)
+    declare toolDescription: string;
+
+    @Column(DataType.TEXT)
     declare reportDescription: string;
 
     @HasMany(() => AuditResults)
