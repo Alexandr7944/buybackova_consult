@@ -11,6 +11,7 @@ import {
     CreateMaturityToolDto
 } from "../dto/create-maturity-level.dto";
 import {Transaction} from "sequelize";
+import {UpdateQuestionDto} from "@/maturity-level/dto/update-question.dto";
 
 @Injectable()
 export class MaturityLevelRepository {
@@ -34,46 +35,61 @@ export class MaturityLevelRepository {
         });
     }
 
-    async getCategories(): Promise<CreateMaturityCategoryDto[]> {
-        const res = await this.cxMaturityCategoriesModel.findAll({
-            include: [{
-                model:      CxMaturityQuestions,
-                as:         'questions',
-                attributes: ['id']
-            }]
-        });
+    async getCategories(isWithIncludes: boolean = true): Promise<CreateMaturityCategoryDto[]> {
+        const include = isWithIncludes ? [{
+            model:      CxMaturityQuestions,
+            as:         'questions',
+            attributes: ['id']
+        }] : [];
+
+        const res = await this.cxMaturityCategoriesModel.findAll({include});
         return res.map(category => ({
             ...category.dataValues,
-            questions: category.questions.map(question => question.dataValues.id)
+            questions: category.questions?.map(question => question.dataValues.id)
         }) as CreateMaturityCategoryDto)
     }
 
-    async getSections(): Promise<CreateMaturitySectionDto[]> {
-        const res = await this.cxMaturitySectionsModel.findAll({
-            include: [{
-                model:      CxMaturityQuestions,
-                as:         'rows',
-                attributes: ['id']
-            }]
-        });
+    async getSections(isWithIncludes: boolean = true): Promise<CreateMaturitySectionDto[]> {
+        const include = isWithIncludes ? [{
+            model:      CxMaturityQuestions,
+            as:         'rows',
+            attributes: ['id'],
+        }] : [];
+
+        const res = await this.cxMaturitySectionsModel.findAll({include});
         return res.map(sections => ({
             ...sections.dataValues,
-            rows: sections.rows.map(row => row.dataValues.id)
+            rows: sections.rows?.map(row => row.dataValues.id)
         }) as CreateMaturityCategoryDto)
     }
 
-    async getTools(): Promise<CreateMaturityToolDto[]> {
-        const res = await this.cxMaturityToolsModel.findAll({
-            include: [{
-                model:      CxMaturityQuestions,
-                as:         'questions',
-                attributes: ['id']
-            }]
-        });
+    async getTools(isWithIncludes: boolean = true): Promise<CreateMaturityToolDto[]> {
+        const include = isWithIncludes ? [{
+            model:      CxMaturityQuestions,
+            as:         'questions',
+            attributes: ['id']
+        }] : [];
+
+        const res = await this.cxMaturityToolsModel.findAll({include});
         return res.map(tool => ({
             ...tool.dataValues,
-            questions: tool.questions.map(question => question.dataValues.id)
+            questions: tool.questions?.map(question => question.dataValues.id)
         }) as CreateMaturityToolDto);
+    }
+
+    async getQuestions() {
+        return await this.cxMaturityQuestionsModel.findAll({
+            order: [['id', 'ASC']]
+        });
+    }
+
+    async updateQuestion(id: number, question: UpdateQuestionDto) {
+        const [count] = await this.cxMaturityQuestionsModel.update({
+            standard: question.standard
+        }, {
+            where: {id}
+        })
+        return Boolean(count);
     }
 
     async truncateTables(transaction: Transaction): Promise<void> {

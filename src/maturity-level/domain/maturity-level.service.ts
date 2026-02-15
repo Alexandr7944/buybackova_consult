@@ -10,6 +10,7 @@ import {XlsxHelper} from "@/common/xlsx/xlsx.reader";
 import {Sequelize} from "sequelize-typescript";
 import sequelize from "sequelize";
 import assert from "node:assert";
+import {UpdateQuestionDto} from "@/maturity-level/dto/update-question.dto";
 
 export type ReportItem = { title: string, total: number, resultByQuestion: number, result: number };
 export type ReportType = {
@@ -39,6 +40,21 @@ export class MaturityLevelService {
         const totalReport = await this.getTotalReport(reportBySection);
 
         return {category: reportByCategory, section: reportBySection, tool: reportByTool, total: totalReport};
+    }
+
+    async getBundleParams() {
+        const [questions, sections, categories, tools] = await Promise.all([
+            this.maturityLevelRepository.getQuestions(),
+            this.maturityLevelRepository.getSections(false),
+            this.maturityLevelRepository.getCategories(false),
+            this.maturityLevelRepository.getTools(false),
+        ])
+
+        return {questions, sections, categories, tools};
+    }
+
+    async updateQuestion(id: number, question: UpdateQuestionDto) {
+        return await this.maturityLevelRepository.updateQuestion(id, question);
     }
 
     private async getReportByCategory(dataIds: Record<string, number>) {
