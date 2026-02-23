@@ -30,19 +30,18 @@ export class CxMaturityQuestions extends Model<CxMaturityQuestions, CreateMaturi
     @ForeignKey(() => CxMaturityCategories)
     @Column({
         type:      DataType.INTEGER,
-        allowNull: false,
     })
-    declare categoryId: string;
+    declare categoryId: number | null;
 
     @ForeignKey(() => CxMaturitySections)
     @Column({
         type:      DataType.INTEGER,
     })
-    declare sectionId: number;
+    declare sectionId: number | null;
 
     @ForeignKey(() => CxMaturityTools)
     @Column({
         type:      DataType.INTEGER,
     })
-    declare toolId: number;
+    declare toolId: number | null;
 }

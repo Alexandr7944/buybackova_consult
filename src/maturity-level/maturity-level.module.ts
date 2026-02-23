@@ -7,13 +7,14 @@ import {CxMaturitySections} from "./infrastructure/models/cx_maturity_sections.m
 import {MaturityLevelRepository} from "./infrastructure/maturity-level.repository";
 import {CxMaturityCategories} from "./infrastructure/models/cx_maturity_categories.models";
 import {CxMaturityTools} from "@/maturity-level/infrastructure/models/cx_maturity_tools.models";
+import {InitialFillingDatabaseService} from "@/maturity-level/domain/initial-filling-database.service";
 
 @Module({
     imports:     [
         SequelizeModule.forFeature([CxMaturityQuestions, CxMaturitySections, CxMaturityCategories, CxMaturityTools])
     ],
     controllers: [MaturityLevelController],
-    providers:   [MaturityLevelService, MaturityLevelRepository],
+    providers:   [MaturityLevelService, InitialFillingDatabaseService, MaturityLevelRepository],
     exports:     [MaturityLevelService]
 })
 export class MaturityLevelModule {

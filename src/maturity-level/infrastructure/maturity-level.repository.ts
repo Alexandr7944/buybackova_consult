@@ -85,7 +85,11 @@ export class MaturityLevelRepository {
 
     async updateQuestion(id: number, question: UpdateQuestionDto) {
         const [count] = await this.cxMaturityQuestionsModel.update({
-            standard: question.standard
+            standard:   question.standard,
+            question:   question.question,
+            sectionId:  question.sectionId || null,
+            categoryId: question.categoryId || null,
+            toolId:     question.toolId || null,
         }, {
             where: {id}
         })
